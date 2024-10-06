@@ -21,7 +21,7 @@ void TaskLedTest::loop() {
 
         int taskUid = taskData.taskUid;
 
-        String mqttStateTopic = String("/api/iot/") + "esp32uuid_watering_system" + "/task_type/" + String(TASK_LED_TEST) + "/" + String(taskUid) + "/state/";
+        String mqttStateTopic = String("/api/iot/") + static_cast<String>(DEVICE_UUID) + "/task_type/" + String(TASK_LED_TEST) + "/" + String(taskUid) + "/state/";
 
         HttpController().instance().sendHttpPost("RECEIVED", mqttStateTopic);
 
@@ -112,7 +112,7 @@ void TaskLedTest::run2(void *parameter){
 
 
 void TaskLedTest::run(){
-    MQTTManager::instance().registerCallback("/server/esp32uuid_watering_system/task_type/" + String(TASK_LED_TEST), this);
+    MQTTManager::instance().registerCallback("/server/" + static_cast<String>(DEVICE_UUID) + "/task_type/" + String(TASK_LED_TEST), this);
 }
 
 void TaskLedTest::executeTask(TaskBase::TaskData taskData){

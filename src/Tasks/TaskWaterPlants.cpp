@@ -81,21 +81,15 @@ void TaskWaterPlants::run2(void *parameter){
     vTaskDelete(NULL);
 }
 
-
-
 void TaskWaterPlants::run(){
     Serial.print("TaskWaterPlants object address: ");
     Serial.println((unsigned long)this, HEX);
 
-    //MQTTManager::instance().registerCallback("/server/esp32uuid_watering_system/task_type/" + String(TASK_WATER_PLANTS), this);
-
+    //TODO MQTTManager::instance().registerCallback("/server/esp32uuid_watering_system/task_type/" + String(TASK_WATER_PLANTS), this);
 
     Serial.print("Parameters size before:"); Serial.println(parametersValues.size());
 
     TaskParams* params = new TaskParams{this};
-   // TaskParams* params = new TaskParams(this);
- //   HttpController().instance().sendHttpPost("", "/api/iot/task/");
-
 
     xTaskCreatePinnedToCore(
         TaskWaterPlants::run2,   // Task function
@@ -107,30 +101,4 @@ void TaskWaterPlants::run(){
         NULL,                 // Task handle
         0                     // Core to run the task (use 0 for the first core)
     );
-    
-
-  //TODO ensure voltage is initialized/read at least once or initialize to -1 in the beginning
-  //if(Global::instance().voltage.toDouble() >= 12.00){
- /*   digitalWrite(pinElectricValve2, LOW);
-    digitalWrite(pinElectricValve1, HIGH);
-                                                                
-    vTaskDelay(8000 / portTICK_PERIOD_MS);
-    digitalWrite(pinWaterPump, HIGH);
-    vTaskDelay(1000*60*8 / portTICK_PERIOD_MS); //8 mins
-    digitalWrite(pinWaterPump, LOW);
-
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    //DISCONNECT ELECTRIC VALVE
-    digitalWrite(pinElectricValve2, HIGH);
-    digitalWrite(pinElectricValve1, LOW);
-
-    vTaskDelay(8000 / portTICK_PERIOD_MS);
-
-    digitalWrite(pinElectricValve2, LOW);
-    digitalWrite(pinElectricValve1, LOW); 
-    */
-  //} else {
- //   //ESP.deepSleep(60*60*60e6); //en microsegundos
-  //}
 }
