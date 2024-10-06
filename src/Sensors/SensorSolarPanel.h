@@ -103,7 +103,7 @@ class SensorSolarPanel{
                     String wattage = String(wattageDouble);
 
                     Serial.print("Solar Amps: "); Serial.print(amps); Serial.print(" A"); Serial.print("Solar Wattage: "); Serial.print(wattage); Serial.println(" W");
-                    String topicSolarPowerConsumption = "esp32uuid_watering_system/sensor_data/" + String(sensorSolarPower);
+                    String topicSolarPowerConsumption = static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorSolarPower);
                     MQTTManager::instance().publish(topicSolarPowerConsumption.c_str(), wattage.c_str());
                 }
 

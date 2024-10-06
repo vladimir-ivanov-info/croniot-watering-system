@@ -38,8 +38,6 @@ class SensorBatteryVoltage{
 
               double batteryVoltage  = resultado * 14.26 / 4096;
 
-  
-
               String batteryVoltageStr = String(batteryVoltage);
 
               String topic = "esp32uuid_watering_system/sensor_data/" + String(sensorUid);

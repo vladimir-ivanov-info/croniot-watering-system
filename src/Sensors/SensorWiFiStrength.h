@@ -40,9 +40,7 @@ class SensorWiFiStrength : public Sensor {
                 
                 for (int i=0; i < measurements; i++){
                     rssi += WiFi.RSSI();
-                    //delay(20);
-                    vTaskDelay(20 / portTICK_PERIOD_MS);
-                    //vTaskDelay(50 / portTICK_PERIOD_MS);
+                    vTaskDelay(50 / portTICK_PERIOD_MS);
                 }
 
                 averageRSSI = rssi/measurements;
@@ -51,9 +49,8 @@ class SensorWiFiStrength : public Sensor {
                 String wifiStrengthStr = String(wifiStrength);
 
                 //Serial.print("WiFi level: "); Serial.print(wifiStrengthStr); Serial.println(" dBm");
-
                 MessageSensorData messageSensorData(sensorUid, wifiStrengthStr);
-                String topic = "esp32uuid_watering_system/sensor_data/" + String(sensorUid);
+                String topic =  static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorUid);
                 String message = messageSensorData.toString();
                 
                 MQTTManager::instance().publish(topic.c_str(), wifiStrengthStr.c_str());
