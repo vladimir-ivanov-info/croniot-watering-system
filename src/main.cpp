@@ -17,9 +17,11 @@
 
 #include "Tasks/TaskLedTest.h"
 
+#include "secrets.h"
 
 static constexpr int pinWaterPump = 4;
 
+void setupCredentials();
 void registerSensorTypes();
 void registerSensors();
 void registerTaskTypes();
@@ -51,16 +53,24 @@ void setup() {
   Serial.println(static_cast<String>(WIFI_PASSWORD));
   Serial.println("]");
 
-
   NetworkManager::instance().setWifiCredentials(static_cast<String>(WIFI_SSID), static_cast<String>(WIFI_PASSWORD));
   NetworkManager::instance().setServerAddress(serverAddress, serverPort, serverMqttPort);
 
+  //Registration internal to IoT device. After the connection is established with the server, the device will send this information to said server if necessary.
   registerSensorTypes();
   registerSensors();
   registerTaskTypes();
   registerTasks();
 
-  CommonSetup::instance().setup();
+  
+  setupCredentialsAndConnectToServer();
+}
+
+void setupCredentialsAndConnectToServer(){
+  UserCredentials credentialsInMemory = Storage::instance().readUserCredentials();
+
+  UserCredentials actualCredentials = UserCredentials(ACCOUNT_EMAIL, ACCOUNT_PASSWORD, DEVICE_UUID, "", DEVICE_NAME, DEVICE_DESCTIPION);
+  CommonSetup::instance().setup(actualCredentials);
 }
 
 void loop() {
@@ -71,7 +81,7 @@ void registerSensorTypes(){
 
   //2
   std::map<String, String> parameters2 = {{PARAMETERS_NUMBER_MIN_VALUE, "-85"}, {PARAMETERS_NUMBER_MAX_VALUE, "-20"}};
-  SensorType *sensor2 = new SensorType(static_cast<String>(SENSOR_WIFI_STRENGTH), "WiFi signal", "WiFi signal strength expressed in dBm", Parameter(1, "WiFi signal", PARAMETERS_NUMBER, "WiFi signal level expressed in dBm", "dBm", parameters2));
+  SensorType *sensor2 = new SensorType(static_cast<String>(SENSOR_WIFI_STRENGTH), "WiFi signal", "WiFi signal level expressed in dBm", Parameter(1, "WiFi signal", PARAMETERS_NUMBER, "WiFi signal level expressed in dBm", "dBm", parameters2));
 
   //3
   std::map<String, String> parameters3 = {{PARAMETERS_NUMBER_MIN_VALUE, "0"}, {PARAMETERS_NUMBER_MAX_VALUE, "100"}};
@@ -122,7 +132,8 @@ void registerTaskTypes(){
 
   TaskController::instance().addTaskType(taskType1);
   TaskController::instance().addTaskType(taskType2);
-  
+
+  TaskController::instance().init();
 }
 
 void registerTasks(){

@@ -13,4 +13,11 @@
 #define SERVER_PORT 8090
 #define SERVER_PORT_MQTT 1883
 
+#define ACCOUNT_EMAIL "account_email"
+#define ACCOUNT_PASSWORD "account_password"
+#define DEVICE_UUID "device_uuid"
+#define DEVICE_NAME "device_name"
+#define DEVICE_DESCTIPION "device_description"
+
+
 #endif

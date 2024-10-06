@@ -50,16 +50,14 @@ class SensorWiFiStrength : public Sensor {
                 int wifiStrength = averageRSSI;
                 String wifiStrengthStr = String(wifiStrength);
 
+                //Serial.print("WiFi level: "); Serial.print(wifiStrengthStr); Serial.println(" dBm");
+
                 MessageSensorData messageSensorData(sensorUid, wifiStrengthStr);
-                String topic = "esp32id_outcoming/sensor_data/" + String(sensorUid);
+                String topic = "esp32uuid_watering_system/sensor_data/" + String(sensorUid);
                 String message = messageSensorData.toString();
                 
                 MQTTManager::instance().publish(topic.c_str(), wifiStrengthStr.c_str());
                 vTaskDelay(1000 / portTICK_PERIOD_MS); // Delay for 1000ms
-
-                //self->publish();
-               // self->getClient().flush();
-               // self->getClient().loop();
             }
             Serial.println("Sensor WifiSignal stopped");
             vTaskDelete(NULL);

@@ -5,7 +5,9 @@
 #include "Global.h"
 #include "HttpController.h"
 
-#include "Sensors/SensorsDefs.h"
+#include "Sensors/SensorDefs.h"
+
+#include "MQTTManager.h"
 
 #include <map>
 

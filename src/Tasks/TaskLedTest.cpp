@@ -4,6 +4,8 @@ TaskLedTest::TaskLedTest()
     : TaskBase("TaskLedTest", 4096, 1, 1) {
     pinMode(pinLedTest, OUTPUT);
     digitalWrite(pinLedTest, LOW); // Ensure the LED is off initially
+
+    
 }
 
 //TODO this method can also be in the Base class
@@ -19,7 +21,7 @@ void TaskLedTest::loop() {
 
         int taskUid = taskData.taskUid;
 
-        String mqttStateTopic = String("/api/iot/") + "esp32uuid" + "/task_type/" + String(TASK_LED_TEST) + "/" + String(taskUid) + "/state/";
+        String mqttStateTopic = String("/api/iot/") + "esp32uuid_watering_system" + "/task_type/" + String(TASK_LED_TEST) + "/" + String(taskUid) + "/state/";
 
         HttpController().instance().sendHttpPost("RECEIVED", mqttStateTopic);
 
@@ -50,24 +52,7 @@ void TaskLedTest::taskFunction(void* pvParameters) {
     vTaskDelete(NULL); // Delete the task after registering callbacks
 }
 
-/*
-void TaskLedTest::registerCallbacks() {
-    MQTTManager::instance().registerCallback("/server/esp32uuid/task_type/" + String(TASK_LED_TEST), [this](String topic, byte* payload, unsigned int length) {
-        this->handleCallback(topic, payload, length);
-    });
-}*/
-/*
-void TaskLedTest::registerCallbacks() {
-    MQTTManager::instance().registerCallback("/server/esp32uuid/task_type/" + String(TASK_LED_TEST), this);
-}*/
 
-/*
-void TaskLedTest::handleCallback(String topic, byte* payload, unsigned int length) {
-    Serial.println("Handling task for LED test!");
-    // Handle the task here
-    // Deserialize JSON, etc.
-    run2();
-}*/
 
 void TaskLedTest::handleCallback(const String& topic, byte* payload, unsigned int length) {
     Serial.println("Handling task for LED TEST");
@@ -76,10 +61,6 @@ void TaskLedTest::handleCallback(const String& topic, byte* payload, unsigned in
     // Process the payload and take necessary actions
     //run2();
 }
-/*
-void TaskLedTest::run() {
-    // Task execution code
-}*/
 
 void TaskLedTest::run2(void *parameter){
 
@@ -132,57 +113,6 @@ void TaskLedTest::run2(void *parameter){
 
 void TaskLedTest::run(){
     MQTTManager::instance().registerCallback("/server/esp32uuid_watering_system/task_type/" + String(TASK_LED_TEST), this);
-
-
-    /*TaskParams* params = new TaskParams{this};
-
-    xTaskCreatePinnedToCore(
-            TaskLedTest::taskFunction,       // Function to implement the task
-            "TaskLedTest",         // Name of the task
-            4096,               // Stack size in words
-            params,               // Task input parameter
-            1,                  // Priority of the task
-            NULL,               // Task handle
-            1                   // Core where the task should run
-        );*/
-
-   // Serial.print("TaskWaterPlants object address: ");
-   // Serial.println((unsigned long)this, HEX);
-
-  //  Serial.print("Parameters size before:"); Serial.println(parametersValues.size());
-
-  //  TaskParams* params = new TaskParams{this};
-   // TaskParams* params = new TaskParams(this);
- //   HttpController().instance().sendHttpPost("", "/api/iot/task/");
-
-
-    /*xTaskCreatePinnedToCore(
-        TaskLedTest::run2,   // Task function
-        "run2", // Task name
-        4096,                 // Stack size (bytes)
-        //8192,                 // Stack size (bytes)
-        params,                 // Task parameters
-        1,                    // Priority
-        NULL,                 // Task handle
-        0                     // Core to run the task (use 0 for the first core)
-    );*/
-
-   /* xTaskCreatePinnedToCore(
-        TaskLedTest::taskFunction,   // Task function
-        "RegisterCallbacks", // Task name
-        4096,                 // Stack size (bytes)
-        //8192,                 // Stack size (bytes)
-        params,                 // Task parameters
-        1,                    // Priority
-        NULL,                 // Task handle
-        0                     // Core to run the task (use 0 for the first core)
-    );*/
-
-
-      //  MQTTManager::instance().registerCallback("/server/esp32uuid/task_type/1", waterPlantsTask);
-
-   // registerCa
-
 }
 
 void TaskLedTest::executeTask(TaskBase::TaskData taskData){
