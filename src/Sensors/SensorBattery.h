@@ -169,9 +169,9 @@ class SensorBattery : public Sensor {
                   double batteryPower = scaledBatteryVoltage * current;
                   String batteryPowerStr = String(batteryPower);
 
-                  String topicBatteryPercentage = static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorBatteryPercentage);
+                  String topicBatteryPercentage = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorBatteryPercentage);
                   MQTTManager::instance().publish(topicBatteryPercentage.c_str(), batteryPercentageStr.c_str());
-                  String topicBatteryPowerConsumption = static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorBatteryPowerConsumption);
+                  String topicBatteryPowerConsumption = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorBatteryPowerConsumption);
 
                   MQTTManager::instance().publish(topicBatteryPowerConsumption.c_str(), batteryPowerStr.c_str());
 
@@ -208,12 +208,14 @@ class SensorBattery : public Sensor {
                     solarPowerStr = String(solarPower);
                   }
                 
-                  String topicSensorPower = "esp32id_outcoming/sensor_data/" + String(sensorSolarPower);
+                 // String topicSensorPower = "/" +  static_cast<String>(DEVICE_UUID) + "_outcoming/sensor_data/" + String(sensorSolarPower);
+                  String topicSensorPower = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorSolarPower);
+
                   MQTTManager::instance().publish(topicSensorPower.c_str(), solarPowerStr.c_str());
               }
               vTaskDelay(1000 / portTICK_PERIOD_MS);
             }
-            Serial.println("Sensor WifiSignal stopped");
+            Serial.println("Sensor stopped");
             vTaskDelete(NULL);
         }
 };

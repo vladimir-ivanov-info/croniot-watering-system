@@ -16,16 +16,17 @@
 #include "Sensors/SensorWiFiStrength.h"
 
 #include "Tasks/TaskLedTest.h"
+#include "Tasks/TaskWaterPlants.h"
 
 #include "secrets.h"
 
 static constexpr int pinWaterPump = 4;
 
-void setupCredentials();
 void registerSensorTypes();
 void registerSensors();
 void registerTaskTypes();
 void registerTasks();
+void setupCredentialsAndConnectToServer();
 
 void setup() {
   Serial.begin(115200);
@@ -62,14 +63,13 @@ void setup() {
   registerTaskTypes();
   registerTasks();
 
-  
   setupCredentialsAndConnectToServer();
 }
 
 void setupCredentialsAndConnectToServer(){
   UserCredentials credentialsInMemory = Storage::instance().readUserCredentials();
 
-  UserCredentials actualCredentials = UserCredentials(ACCOUNT_EMAIL, ACCOUNT_PASSWORD, DEVICE_UUID, "", DEVICE_NAME, DEVICE_DESCTIPION);
+  UserCredentials actualCredentials = UserCredentials(ACCOUNT_EMAIL, ACCOUNT_UUID, ACCOUNT_PASSWORD, DEVICE_UUID, "", DEVICE_NAME, DEVICE_DESCTIPION);
   CommonSetup::instance().setup(actualCredentials);
 }
 
@@ -107,6 +107,7 @@ void registerSensors(){
 }
 
 void registerTaskTypes(){
+  //WATER PLANTS
   std::map<String, String> constraints;
   constraints.insert({String("minValue"), String("1")});
   constraints.insert({String("maxValue"), String("600")});
@@ -138,4 +139,5 @@ void registerTaskTypes(){
 
 void registerTasks(){
   TaskController::instance().addTask(new TaskLedTest());
+  TaskController::instance().addTask(new TaskWaterPlants());
 }

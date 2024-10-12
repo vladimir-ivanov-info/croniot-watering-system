@@ -5,6 +5,8 @@
 #include "Messages/MessageSensorData.h"
 #include "Sensors/SensorDefs.h"
 
+#include "secrets.h"
+
 class SensorBatteryVoltage{
     
     public:
@@ -40,7 +42,7 @@ class SensorBatteryVoltage{
 
               String batteryVoltageStr = String(batteryVoltage);
 
-              String topic = "esp32uuid_watering_system/sensor_data/" + String(sensorUid);
+              String topic = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorUid);
                   
               MQTTManager::instance().getClient()->publish(topic.c_str(), batteryVoltageStr.c_str());
               vTaskDelay(1000 / portTICK_PERIOD_MS); // Delay for 1000ms

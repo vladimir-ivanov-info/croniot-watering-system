@@ -12,6 +12,8 @@
 #include "MQTTManager.h"
 #include "Tasks/TaskBase.h"
 
+#include "secrets.h"
+
 class TaskLedTest : public TaskBase {
 
     public:

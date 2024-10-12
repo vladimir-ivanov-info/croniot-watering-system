@@ -8,6 +8,7 @@
 #include <WiFi.h>
 
 #include "Sensors/Sensor.h"
+#include "secrets.h"
 
 class SensorWiFiStrength : public Sensor {
     
@@ -50,7 +51,7 @@ class SensorWiFiStrength : public Sensor {
 
                 //Serial.print("WiFi level: "); Serial.print(wifiStrengthStr); Serial.println(" dBm");
                 MessageSensorData messageSensorData(sensorUid, wifiStrengthStr);
-                String topic =  static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorUid);
+                String topic = "/" +  static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorUid);
                 String message = messageSensorData.toString();
                 
                 MQTTManager::instance().publish(topic.c_str(), wifiStrengthStr.c_str());

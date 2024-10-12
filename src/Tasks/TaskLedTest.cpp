@@ -4,8 +4,6 @@ TaskLedTest::TaskLedTest()
     : TaskBase("TaskLedTest", 4096, 1, 1) {
     pinMode(pinLedTest, OUTPUT);
     digitalWrite(pinLedTest, LOW); // Ensure the LED is off initially
-
-    
 }
 
 //TODO this method can also be in the Base class
@@ -22,11 +20,7 @@ void TaskLedTest::loop() {
         int taskUid = taskData.taskUid;
 
         String mqttStateTopic = String("/api/iot/") + static_cast<String>(DEVICE_UUID) + "/task_type/" + String(TASK_LED_TEST) + "/" + String(taskUid) + "/state/";
-
         HttpController().instance().sendHttpPost("RECEIVED", mqttStateTopic);
-
-        //Serial.println("Before receeiving:");
-        //Serial.println(taskData.parametersValues.size());
 
         executeTask(taskData); //TODO maybe pass reference
         HttpController().instance().sendHttpPost("COMPLETED", mqttStateTopic);
