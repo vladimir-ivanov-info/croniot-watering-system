@@ -11,6 +11,7 @@
 
 #define TASK_WATER_PLANTS 1
     #define TASK_WATER_PLANTS_PARAMETER_DURATION 1
+    //#define TASK_WATER_PLANTS_PARAMETER_TIME 2 --> moved to croniot-iot common constants
 
 #define TASK_LED_TEST 2
 

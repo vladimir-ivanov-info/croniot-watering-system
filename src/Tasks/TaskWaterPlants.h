@@ -2,7 +2,7 @@
 #define TASKWATERPLANTS_H
 
 #include <Arduino.h>
-#include "Global.h"
+
 #include "HttpController.h"
 
 #include "Sensors/SensorDefs.h"
@@ -19,6 +19,8 @@ class TaskWaterPlants : public TaskBase {
       //  TaskWaterPlants(int taskUid, const std::map<int, String>& parametersValues);
         TaskWaterPlants();
 
+        int getUid() override { return TASK_WATER_PLANTS; }
+
         void loop() override;
 
         void run() override;
@@ -27,10 +29,16 @@ class TaskWaterPlants : public TaskBase {
         static constexpr int pinElectricValve1 = 5;
         static constexpr int pinElectricValve2 = 18;
 
-        static constexpr byte relayOnState = LOW;
-        static constexpr byte relayOffState = HIGH;
+        static constexpr uint8_t relayOnState = LOW;
+        static constexpr uint8_t relayOffState = HIGH;
+
 
     private:
+
+      void openWaterValve();
+      void closeWaterValve();
+      void startWatering();
+      void stopWatering();
 
       //  int pinWaterPump = 4;
      //   int pinElectricValve1 = 5;
@@ -38,14 +46,14 @@ class TaskWaterPlants : public TaskBase {
        // int taskUid;
         std::map<int, String> parametersValues;
 
-        static void run2(void *parameter);
+        //static void run2(void *parameter);
 
         struct TaskParams {
             TaskWaterPlants* obj;
         };
 
-        void handleCallback(const String& topic, byte* payload, unsigned int length) override;
-        void executeTask(TaskBase::TaskData taskData) override;
-
+        //void handleCallback(const String& topic, byte* payload, unsigned int length) override;
+        //void executeTask(std::map<int, String> parameters) override;
+        void executeTask(SimpleTaskData& taskData) override;
 };
  #endif

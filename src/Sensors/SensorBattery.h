@@ -163,6 +163,9 @@ class SensorBattery : public Sensor {
 
                   //BATTERY PERCENTAGE
                   float voltageBatteryPercentage = voltsToPercentage(String(scaledBatteryVoltage));
+                  if(voltageBatteryPercentage > 100.0f){
+                    voltageBatteryPercentage = 100.0f;
+                  }
                   String batteryPercentageStr = String(voltageBatteryPercentage);
 
                   //BATTERY POWER

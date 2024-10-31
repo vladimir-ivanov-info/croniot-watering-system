@@ -19,6 +19,11 @@
 #include "Tasks/TaskWaterPlants.h"
 
 #include "secrets.h"
+#include "Storage.h"
+
+#include <map>
+
+#include "CommonConstants.h"
 
 static constexpr int pinWaterPump = 4;
 
@@ -27,6 +32,8 @@ void registerSensors();
 void registerTaskTypes();
 void registerTasks();
 void setupCredentialsAndConnectToServer();
+
+String DEVICE_UUID_EXTERN = DEVICE_UUID;
 
 void setup() {
   Serial.begin(115200);
@@ -118,6 +125,10 @@ void registerTaskTypes(){
   list<Parameter> parameters1;
   parameters1.push_back(parameter1);
 
+  std::map<String, String> constraintsWaterPlants2; //no constraints
+  Parameter parameter2WaterPlants(static_cast<int>(COMMON_TASK_PARAMETER_TIME), "Time", "time", "Time when you want the task to start", "HH:mm", constraintsWaterPlants2); 
+  parameters1.push_back(parameter2WaterPlants);
+
   TaskType taskType1(static_cast<int>(TASK_WATER_PLANTS), "Water plants", "Water plants for given amount of seconds", parameters1);
 
   //LED TEST
@@ -125,9 +136,14 @@ void registerTaskTypes(){
   constraintsLedTest.insert({String("minValue"), String("1")});
   constraintsLedTest.insert({String("maxValue"), String("10")});
 
-  Parameter parameter1LedTest(static_cast<int>(TASK_WATER_PLANTS_PARAMETER_DURATION), "Duration", "number", "Duration of the LED truend on, in seconds", "s", constraintsLedTest); 
+  Parameter parameter1LedTest(static_cast<int>(TASK_WATER_PLANTS_PARAMETER_DURATION), "Duration", "number", "Duration of the LED turned on, in seconds", "s", constraintsLedTest); 
   list<Parameter> parameters1LedTest;
   parameters1LedTest.push_back(parameter1LedTest);
+
+
+  std::map<String, String> constraintsLedTest2; //no constraints
+  Parameter parameter2LedTest(static_cast<int>(COMMON_TASK_PARAMETER_TIME), "Time", "time", "Time when you want the task to start", "HH:mm", constraintsLedTest2); 
+  parameters1LedTest.push_back(parameter2LedTest);
 
   TaskType taskType2(static_cast<int>(TASK_LED_TEST), "LED test", "Turn on the test LED for given amount of seconds", parameters1LedTest);
 

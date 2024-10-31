@@ -2,7 +2,6 @@
 #define TASKLEDTEST_H
 
 #include <Arduino.h>
-#include "Global.h"
 #include "HttpController.h"
 
 #include "Sensors/SensorDefs.h"
@@ -11,13 +10,22 @@
 
 #include "MQTTManager.h"
 #include "Tasks/TaskBase.h"
+#include "Tasks/TaskData.h"
 
 #include "secrets.h"
+#include "Tasks/TaskController.h"
+
+#include "Tasks/SimpleTaskData.h"
+#include "Tasks/TaskProgressUpdate.h"
+
+using byte = uint8_t;  // Resolve ambiguity by explicitly defining byte as uint8_t
+
 
 class TaskLedTest : public TaskBase {
 
     public:
         TaskLedTest();
+        int getUid() override { return TASK_LED_TEST; }
 
         void loop() override;
         
@@ -25,19 +33,16 @@ class TaskLedTest : public TaskBase {
 
         static constexpr int pinLedTest = 27;
 
-        static void taskFunction(void* pvParameters);
+        //static void taskFunction(void* pvParameters);
 
     private:
         std::map<int, String> parametersValues;
-
-        static void run2(void *parameter);
 
         struct TaskParams {
             TaskLedTest* obj;
         };
 
-        void handleCallback(const String& topic, byte* payload, unsigned int length) override;
-        void executeTask(TaskBase::TaskData taskData) override;
+        void executeTask(SimpleTaskData& taskData) override;
 
 };
  #endif

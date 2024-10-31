@@ -44,11 +44,9 @@ class SensorBatteryVoltage{
 
               String topic = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorUid);
                   
-              MQTTManager::instance().getClient()->publish(topic.c_str(), batteryVoltageStr.c_str());
+              MQTTManager::instance().publish(topic.c_str(), batteryVoltageStr.c_str());
+
               vTaskDelay(1000 / portTICK_PERIOD_MS); // Delay for 1000ms
-              //self->publish();
-              // self->getClient().flush();
-              // self->getClient().loop();
             }
         }
 };
