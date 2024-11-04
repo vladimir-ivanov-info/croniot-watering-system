@@ -85,7 +85,7 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData){
 
         stopWatering();
         //vTaskDelay(closingValveDelayMillis / portTICK_PERIOD_MS);
-
+        //1 second delay between water pump turn off and water valve closing
         for(int i = 1000; i <  closingValveDelayMillis + 1000; i+=1000){
             
             float progressPercentage = (float)elapsedMillis*100.0f/(float)totalProcessDurationSeconds;
@@ -100,10 +100,24 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData){
 
 
         closeWaterValve();
-        vTaskDelay(closingValveDelayMillis / portTICK_PERIOD_MS); //close valve
+        //vTaskDelay(closingValveDelayMillis / portTICK_PERIOD_MS); //close valve
+        for(int i = 0; i <  waterValveClosingMillis + 1000; i+=1000){
+            
+            float progressPercentage = (float)elapsedMillis*100.0f/(float)totalProcessDurationSeconds;
+            progressPercentage = std::round(progressPercentage * 100) / 100;
 
-        TaskProgressUpdate taskProgressUpdate(getUid(), taskData.taskUid, "COMPLETED", 100.0, ""); 
-        TaskController::instance().enqueueTaskProgressUpdate(taskProgressUpdate);
+            TaskProgressUpdate taskProgressUpdate;
+            if(progressPercentage < 100.0f){
+                taskProgressUpdate = TaskProgressUpdate(getUid(), taskData.taskUid, "RUNNING", progressPercentage, "");
+            } else {
+                taskProgressUpdate = TaskProgressUpdate(getUid(), taskData.taskUid, "COMPLETED", 100.0f, ""); 
+            }
+
+            TaskController::instance().enqueueTaskProgressUpdate(taskProgressUpdate);
+            vTaskDelay(1*1000 / portTICK_PERIOD_MS);
+
+            elapsedMillis+=1000;
+        }
     } catch (const std::out_of_range& e) {
         Serial.print("Key not found: ");
         Serial.println(parameterDuration);

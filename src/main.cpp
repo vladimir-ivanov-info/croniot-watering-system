@@ -12,8 +12,10 @@
 #include "Sensors/SensorsController.h"
 #include "Tasks/TaskController.h"
 
-#include "Sensors/SensorBattery.h"
+
 #include "Sensors/SensorWiFiStrength.h"
+#include "Sensors/SensorBattery.h"
+#include "Sensors/SensorSolarPanel.h"
 
 #include "Tasks/TaskLedTest.h"
 #include "Tasks/TaskWaterPlants.h"
@@ -109,8 +111,9 @@ void registerSensorTypes(){
 }
 
 void registerSensors(){
-  SensorsController::instance().addSensor(new SensorBattery());
   SensorsController::instance().addSensor(new SensorWiFiStrength());
+  SensorsController::instance().addSensor(new SensorBattery());
+  SensorsController::instance().addSensor(new SensorSolarPanel());
 }
 
 void registerTaskTypes(){
