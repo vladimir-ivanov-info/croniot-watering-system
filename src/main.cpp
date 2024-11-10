@@ -18,6 +18,7 @@
 #include "Sensors/SensorSolarPanel.h"
 
 #include "Tasks/TaskLedTest.h"
+#include "Tasks/TaskLedSwitch.h"
 #include "Tasks/TaskWaterPlants.h"
 
 #include "secrets.h"
@@ -150,13 +151,26 @@ void registerTaskTypes(){
 
   TaskType taskType2(static_cast<int>(TASK_LED_TEST), "LED test", "Turn on the test LED for given amount of seconds", parameters1LedTest);
 
+
+  std::map<String, String> constraintsLedSwitch;
+  constraintsLedSwitch.insert({String("state_1"), String("on")});
+  constraintsLedSwitch.insert({String("state_2"), String("off")});
+  Parameter parameter1LedSwitch(static_cast<int>(TASK_LED_SWITCH_PARAMETER_SWITCH_STATE), "LED Switch", "stateful", "Switch to turn on the LED", "", constraintsLedSwitch); 
+
+  list<Parameter> parametersLedSwitch;
+  parametersLedSwitch.push_back(parameter1LedSwitch);
+
+  TaskType taskTypeLedSwitch(static_cast<int>(TASK_LED_SWITCH), "LED switch", "Turn on and off the test LED", parametersLedSwitch);
+
   TaskController::instance().addTaskType(taskType1);
   TaskController::instance().addTaskType(taskType2);
+  TaskController::instance().addTaskType(taskTypeLedSwitch);
 
   TaskController::instance().init();
 }
 
 void registerTasks(){
   TaskController::instance().addTask(new TaskLedTest());
+  TaskController::instance().addTask(new TaskLedSwitch());
   TaskController::instance().addTask(new TaskWaterPlants());
 }
