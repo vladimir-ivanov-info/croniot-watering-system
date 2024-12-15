@@ -9,7 +9,6 @@
 class ADS1115Controller{
 
     public:
-
         static ADS1115Controller& instance() {
             static ADS1115Controller _instance;
             return _instance;

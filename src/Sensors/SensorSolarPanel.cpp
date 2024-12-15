@@ -1,7 +1,6 @@
 #include "SensorSolarPanel.h"
 
 void SensorSolarPanel::run(){
-
     xTaskCreatePinnedToCore(
         taskSolar,      // Function to run the task
         "SensorSolar",          // Task name
@@ -53,16 +52,15 @@ void SensorSolarPanel::taskSolar(void* pvParameters) {
 }
 
 float SensorSolarPanel::getSolarCurrent(){
-const float ACS712_ZeroCurrentVoltage = 2.5; // 2.5V at 0A
-
+    const float ACS712_ZeroCurrentVoltage = 2.5; // 2.5V at 0A
     //const float ACS712_Sensitivity = 0.1875; // 66mV/A 187.5 for 5Amps current sensor
     const float ACS712_Sensitivity = 0.1; // For 20A
 
     int adValueSolar = 0;
-    int samplesAdcSolarCurrent = 30;
+
     int finalSamplesSolarCurrent = 0;
 
-    for(int i = 0; i < samplesAdcSolarCurrent; i++){
+    for(int i = 0; i < SENSOR_MESAUREMENT_SAMPLES; i++){
         int adcValueSolarNow = ADS1115Controller::instance().readValueBlocking(ADS_INPUT_SOLAR_CURRENT);
 
         if(adcValueSolarNow < 0){
@@ -74,21 +72,23 @@ const float ACS712_ZeroCurrentVoltage = 2.5; // 2.5V at 0A
         vTaskDelay(20 / portTICK_PERIOD_MS);
     }
 
-    float adcValueSolarCurrent = (float)adValueSolar / (float)finalSamplesSolarCurrent;
-    float voltageSolar = adcValueSolarCurrent * 0.0001875; // Convert mV to V
-    float currentSolar = (voltageSolar - ACS712_ZeroCurrentVoltage) / ACS712_Sensitivity;
+    float currentSolar = 0.0f;
+
+    if(finalSamplesSolarCurrent > 0){
+        float adcValueSolarCurrent = (float)adValueSolar / (float)finalSamplesSolarCurrent;
+        float voltageSolar = adcValueSolarCurrent * 0.0001875; // Convert mV to V
+        currentSolar = (voltageSolar - ACS712_ZeroCurrentVoltage) / ACS712_Sensitivity;
+    }
 
     return currentSolar;
 }
 
 
-
 float SensorSolarPanel::getSolarVoltage(){
     int adValueSolarVoltage = 0;
-    int samplesAdcSolarVoltage = 30;
     int finalSamplesAdcSolarVoltage = 0;
 
-    for(int i = 0; i < samplesAdcSolarVoltage; i++){
+    for(int i = 0; i < SENSOR_MESAUREMENT_SAMPLES; i++){
         int adcValueSolarVoltageNow = ADS1115Controller::instance().readValueBlocking(ADS_INPUT_SOLAR_VOLTAGE);
         if(adcValueSolarVoltageNow  < 0){
 
@@ -98,7 +98,6 @@ float SensorSolarPanel::getSolarVoltage(){
         }
         vTaskDelay(20 / portTICK_PERIOD_MS);
     }
-
 
     float adcValueSolarVoltage = (float)adValueSolarVoltage/(float)finalSamplesAdcSolarVoltage;
 

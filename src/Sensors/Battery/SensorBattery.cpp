@@ -1,10 +1,10 @@
-#include "SensorBattery.h"
+#include "Sensors/Battery/SensorBattery.h"
 
 void SensorBattery::run(){
     xTaskCreatePinnedToCore(
         taskBattery,      // Function to run the task
         "SensorBattery",          // Task name
-        10000,             // Stack size (words)
+        4096,             // Stack size (words)
         this,              // Task parameter (pass the instance of the singleton)
         1,                 // Task priority
         &taskBatteryHandle,       // Task handle
@@ -27,7 +27,7 @@ void SensorBattery::taskBattery(void* pvParameters) {
         int sensorSolarPower = static_cast<int>(SENSOR_SOLAR_POWER);
 
         while(self->continueTask){
-                
+
                 float batteryCurrent = self->getBatteryCurrent();
                 float batteryVoltage = self->getBatteryVoltage();
 
@@ -36,16 +36,25 @@ void SensorBattery::taskBattery(void* pvParameters) {
                 if(voltageBatteryPercentage > 100.0f){
                     voltageBatteryPercentage = 100.0f;
                 }
+ 
                 String batteryPercentageStr = String(voltageBatteryPercentage);
+
+                if(voltageBatteryPercentage < 0.0f){
+                    batteryPercentageStr = "0";
+                }
 
                 //BATTERY POWER
                 double batteryPower = batteryVoltage * batteryCurrent;
-                String batteryPowerStr = String(batteryPower);
 
+                String batteryPowerStr = String(batteryPower);
+                if(batteryPower < 0.0f){
+                    batteryPowerStr = "0";
+                }
+                
                 MQTTManager::instance().publish(topicBatteryPercentage.c_str(), batteryPercentageStr.c_str());
                 MQTTManager::instance().publish(topicBatteryPowerConsumption.c_str(), batteryPowerStr.c_str());
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
 
@@ -57,10 +66,9 @@ float SensorBattery::getBatteryCurrent(){
     const float ACS712_Sensitivity = 0.1; // For 20A
 
     int adValueCurrent = 0;
-    int samplesAdcCurrent = 30;
     int finalSamplesCurrent = 0; //TODO handle when this variable ends up being 0
 
-    for(int i = 0; i < samplesAdcCurrent; i++){
+    for(int i = 0; i < SENSOR_MESAUREMENT_SAMPLES; i++){
         int adcValue = ADS1115Controller::instance().readValueBlocking(ADS_INPUT_BATTERY_CURRENT);
 
         if(adcValue < 0){
@@ -72,22 +80,21 @@ float SensorBattery::getBatteryCurrent(){
         vTaskDelay(20 / portTICK_PERIOD_MS);
     }
 
-
     float adcValueCurrent = (float)adValueCurrent / (float)finalSamplesCurrent;
-
     float voltage = adcValueCurrent * 0.0001875f; // Convert mV to V
-
     float current = (voltage - ACS712_ZeroCurrentVoltage) / ACS712_Sensitivity;
+
+    //Serial.print("Voltage: "); Serial.print(voltage); Serial.print(" current: "); Serial.println(current);
 
     return current;
 }
 
 float SensorBattery::getBatteryVoltage(){
     int adValueVoltage = 0;
-    int samplesAdcVoltage = 30;
+    
     int finalSamples = 0;
 
-    for(int i = 0; i < samplesAdcVoltage; i++){
+    for(int i = 0; i < SENSOR_MESAUREMENT_SAMPLES; i++){
         int adcValueVoltageNow = ADS1115Controller::instance().readValueBlocking(ADS_INPUT_BATTERY_VOLTAGE);
 
         if(adcValueVoltageNow < 0){
@@ -100,15 +107,16 @@ float SensorBattery::getBatteryVoltage(){
         vTaskDelay(20 / portTICK_PERIOD_MS); // Delay for 1000ms
     }
 
-    int16_t adcValueVoltage = adValueVoltage / finalSamples;
+    float scaledBatteryVoltage = 0.0f;
 
-    double measuredBatteryVoltage = adcValueVoltage * 0.0001875;
-
-    double scaledBatteryVoltage = (measuredBatteryVoltage / 5.0) * 25.0;
+    if(finalSamples > 0){
+        int16_t adcValueVoltage = adValueVoltage / finalSamples;
+        double measuredBatteryVoltage = adcValueVoltage * 0.0001875;
+        scaledBatteryVoltage = (measuredBatteryVoltage / 5.0) * 25.0;
+    }
 
     return scaledBatteryVoltage;
 }
-
 
 float SensorBattery::voltsToPercentage(String voltsStr){
     float voltage = voltsStr.toDouble();

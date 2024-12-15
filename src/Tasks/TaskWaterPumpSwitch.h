@@ -1,5 +1,5 @@
-#ifndef TASKLEDSWITCH_H
-#define TASKLEDSWITCH_H
+#ifndef TASKWATERPUMPSWITCH_H
+#define TASKWATERPUMPSWITCH_H
 
 #include <Arduino.h>
 #include "HttpController.h"
@@ -18,25 +18,23 @@
 #include "Tasks/SimpleTaskData.h"
 #include "Tasks/TaskProgressUpdate.h"
 
-class TaskLedSwitch : public TaskBase {
+class TaskWaterPumpSwitch : public TaskBase {
 
     public:
-        TaskLedSwitch();
-        int getUid() override { return TASK_LED_SWITCH; }
+        TaskWaterPumpSwitch();
+        int getUid() override { return TASK_WATER_PUMP_SWITCH; }
 
         void loop() override;
         
         void run() override;
 
-        static constexpr int pinLedTest = 27;
-
-        //static void taskFunction(void* pvParameters);
-
+        static constexpr int pinWaterPump = 4;
+        
     private:
         std::map<int, String> parametersValues;
 
         struct TaskParams {
-            TaskLedSwitch* obj;
+            TaskWaterPumpSwitch* obj;
         };
 
         void executeTask(SimpleTaskData& taskData) override;

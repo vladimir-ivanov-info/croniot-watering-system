@@ -26,6 +26,9 @@ class SensorSolarPanel : public Sensor {
         const uint8_t ADS_INPUT_SOLAR_VOLTAGE = 2;
         const uint8_t ADS_INPUT_SOLAR_CURRENT = 3;
 
+        const int SENSOR_MESAUREMENT_SAMPLES = 20;
+
+
         TaskHandle_t taskSolarHandle = NULL;
 
         static void taskSolar(void* pvParameters);

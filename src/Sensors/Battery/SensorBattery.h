@@ -10,7 +10,7 @@
 #include "Sensors/Sensor.h"
 #include "secrets.h"
 
-#include "ADS1115Controller.h"
+#include "Sensors/ADS1115Controller.h"
 
 class SensorBattery : public Sensor {
     
@@ -31,6 +31,8 @@ class SensorBattery : public Sensor {
 
         const uint8_t ADS_INPUT_BATTERY_CURRENT = 0;
         const uint8_t ADS_INPUT_BATTERY_VOLTAGE = 1;
+
+        const int SENSOR_MESAUREMENT_SAMPLES = 20;
 
 
         TaskHandle_t taskBatteryHandle = NULL;

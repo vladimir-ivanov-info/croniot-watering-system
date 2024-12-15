@@ -15,8 +15,6 @@
 class TaskWaterPlants : public TaskBase {
 
     public:
-       // TaskWaterPlants(std::map<int, String> parametersValues);
-      //  TaskWaterPlants(int taskUid, const std::map<int, String>& parametersValues);
         TaskWaterPlants();
 
         int getUid() override { return TASK_WATER_PLANTS; }
@@ -32,7 +30,6 @@ class TaskWaterPlants : public TaskBase {
         static constexpr uint8_t relayOnState = LOW;
         static constexpr uint8_t relayOffState = HIGH;
 
-
     private:
 
       void openWaterValve();
@@ -40,20 +37,12 @@ class TaskWaterPlants : public TaskBase {
       void startWatering();
       void stopWatering();
 
-      //  int pinWaterPump = 4;
-     //   int pinElectricValve1 = 5;
-     //   int pinElectricValve2 = 18;
-       // int taskUid;
-        std::map<int, String> parametersValues;
+      std::map<int, String> parametersValues;
 
-        //static void run2(void *parameter);
+      struct TaskParams {
+          TaskWaterPlants* obj;
+      };
 
-        struct TaskParams {
-            TaskWaterPlants* obj;
-        };
-
-        //void handleCallback(const String& topic, byte* payload, unsigned int length) override;
-        //void executeTask(std::map<int, String> parameters) override;
-        void executeTask(SimpleTaskData& taskData) override;
+      void executeTask(SimpleTaskData& taskData) override;
 };
  #endif

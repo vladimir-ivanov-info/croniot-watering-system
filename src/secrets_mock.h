@@ -6,18 +6,32 @@
 //  #define SECRETS_H
 //AFTER THAT, ADJUST THE CONSTANTS BELOW:
 
-#define WIFI_SSID "router_name"
-#define WIFI_PASSWORD "router_password"
+#define ACCOUNT_EMAIL "email1@gmail.com"
+#define ACCOUNT_UUID "account1Uuid"
+#define ACCOUNT_PASSWORD "password1"
+#define DEVICE_UUID "watering_system_1"
+#define DEVICE_NAME "Watering System"
+#define DEVICE_DESCTIPION "This device is for watering plants. You can choose different tasks: do you want to water the plants now or set an alarm for automatic watering later?"
 
-#define SERVER_ADDRESS "192.168.x.x"
-#define SERVER_PORT 8090
-#define SERVER_PORT_MQTT 1883
+#include <Arduino.h>
 
-#define ACCOUNT_EMAIL "account_email"
-#define ACCOUNT_PASSWORD "account_password"
-#define DEVICE_UUID "device_uuid"
-#define DEVICE_NAME "device_name"
-#define DEVICE_DESCTIPION "device_description"
+class SecretsMock{
 
+    public:
+        inline static String WIFI_SSID = "WIFI_SSID"; 
+        inline static String WIFI_PASSWORD = "WIFI_PASSWORD"; 
+
+        inline static String SERVER_ADDRESS = ""; // = "192.168.50.163";
+        inline static const String SERVER_ADDRESS_LOCAL = "192.168.x.x";
+        inline static const String SERVER_ADDRESS_REMOTE = "a.b.c.d";
+
+        inline static int SERVER_PORT = 8090;
+        inline static int SERVER_PORT_MQTT = 1883;
+        
+    private:
+
+
+
+};
 
 #endif
