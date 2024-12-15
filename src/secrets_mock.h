@@ -21,7 +21,7 @@ class SecretsMock{
         inline static String WIFI_SSID = "WIFI_SSID"; 
         inline static String WIFI_PASSWORD = "WIFI_PASSWORD"; 
 
-        inline static String SERVER_ADDRESS = ""; // = "192.168.50.163";
+        inline static String SERVER_ADDRESS = "";
         inline static const String SERVER_ADDRESS_LOCAL = "192.168.x.x";
         inline static const String SERVER_ADDRESS_REMOTE = "a.b.c.d";
 
