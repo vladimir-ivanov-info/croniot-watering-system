@@ -15,8 +15,6 @@ void SensorWiFiStrength::run(){
 void SensorWiFiStrength::task(void* pvParameters) {
     SensorWiFiStrength *self = (SensorWiFiStrength *)pvParameters;
 
-    int sensorUid = static_cast<int>(SENSOR_WIFI_STRENGTH);
-
     bool continueTask = self->continueTask;
 
     // Your RTOS task logic goes here
@@ -35,13 +33,8 @@ void SensorWiFiStrength::task(void* pvParameters) {
 
         int wifiStrength = averageRSSI;
         String wifiStrengthStr = String(wifiStrength);
-
-        //Serial.print("WiFi level: "); Serial.print(wifiStrengthStr); Serial.println(" dBm");
-        MessageSensorData messageSensorData(sensorUid, wifiStrengthStr);
-        String topic = "/" +  static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorUid);
-        String message = messageSensorData.toString();
         
-        MQTTManager::instance().publish(topic.c_str(), wifiStrengthStr.c_str());
+        self->sendSensorData(static_cast<String>(DEVICE_UUID), static_cast<int>(SENSOR_WIFI_STRENGTH), wifiStrengthStr);
         vTaskDelay(1000 / portTICK_PERIOD_MS); // Delay for 1000ms
     }
     Serial.println("Sensor WifiSignal stopped");

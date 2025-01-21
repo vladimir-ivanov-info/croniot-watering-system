@@ -17,9 +17,6 @@ void SensorRamUsage::taskRamUsage(void* pvParameters) {
 
     Serial.println("RamUsage task initialized...");
 
-    int sensorRamUsage = static_cast<int>(SENSOR_RAM_USAGE);
-    String topicRamUsage = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorRamUsage);
-
     uint32_t totalHeapSize = ESP.getHeapSize()/1024;
 
     while (true) {
@@ -27,9 +24,10 @@ void SensorRamUsage::taskRamUsage(void* pvParameters) {
             
             uint32_t freeHeap = ESP.getFreeHeap()/1024;
             String usageRam = String(totalHeapSize - freeHeap);
-            MQTTManager::instance().publish(topicRamUsage.c_str(), usageRam.c_str());
-            //esp_task_wdt_reset();
+
+            self->sendSensorData(static_cast<String>(DEVICE_UUID), static_cast<int>(SENSOR_RAM_USAGE), usageRam);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
+            //esp_task_wdt_reset();
         }
-    } 
+    }
 }

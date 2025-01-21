@@ -82,7 +82,6 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData){
             elapsedMillis+=1000;
         }
 
-
         stopWatering();
         //vTaskDelay(closingValveDelayMillis / portTICK_PERIOD_MS);
         //1 second delay between water pump turn off and water valve closing
@@ -97,7 +96,6 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData){
 
             elapsedMillis+=1000;
         }
-
 
         closeWaterValve();
         //vTaskDelay(closingValveDelayMillis / portTICK_PERIOD_MS); //close valve

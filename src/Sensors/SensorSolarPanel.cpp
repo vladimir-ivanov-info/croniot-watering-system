@@ -17,10 +17,6 @@ void SensorSolarPanel::taskSolar(void* pvParameters) {
 
     Serial.println("SensorSolar task initialized...");
 
-    int sensorSolarPower = static_cast<int>(SENSOR_SOLAR_POWER);
-    String topicSensorPower = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorSolarPower);
-
-
     while (true) {
         while(self->continueTask){
             
@@ -39,7 +35,7 @@ void SensorSolarPanel::taskSolar(void* pvParameters) {
                 solarPowerStr = String(solarPower);
             }
 
-            MQTTManager::instance().publish(topicSensorPower.c_str(), solarPowerStr.c_str());
+            self->sendSensorData(static_cast<String>(DEVICE_UUID), static_cast<int>(SENSOR_SOLAR_POWER), solarPowerStr);
 
             if(solarPowerStr == "0"){
                 vTaskDelay(5000 / portTICK_PERIOD_MS); //Delay when we detect solar sensor not connected or almost no solar energy is charging the battery

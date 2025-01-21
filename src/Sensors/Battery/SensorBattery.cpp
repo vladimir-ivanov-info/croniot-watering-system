@@ -18,14 +18,6 @@ void SensorBattery::taskBattery(void* pvParameters) {
     Serial.println("SensorBattery task initialized...");
 
     while (true) {
-        int sensorBatteryPercentage = static_cast<int>(SENSOR_BATTERY_PERCENTAGE);
-        int sensorBatteryPowerConsumption = static_cast<int>(SENSOR_BATTERY_POWER_CONSUMPTION);
-
-        String topicBatteryPercentage = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorBatteryPercentage);
-        String topicBatteryPowerConsumption = "/" + static_cast<String>(DEVICE_UUID) + "/sensor_data/" + String(sensorBatteryPowerConsumption);
-
-        int sensorSolarPower = static_cast<int>(SENSOR_SOLAR_POWER);
-
         while(self->continueTask){
 
                 float batteryCurrent = self->getBatteryCurrent();
@@ -50,9 +42,10 @@ void SensorBattery::taskBattery(void* pvParameters) {
                 if(batteryPower < 0.0f){
                     batteryPowerStr = "0";
                 }
-                
-                MQTTManager::instance().publish(topicBatteryPercentage.c_str(), batteryPercentageStr.c_str());
-                MQTTManager::instance().publish(topicBatteryPowerConsumption.c_str(), batteryPowerStr.c_str());
+
+                self->sendSensorData(static_cast<String>(DEVICE_UUID), static_cast<int>(SENSOR_BATTERY_PERCENTAGE), batteryPercentageStr);
+                self->sendSensorData(static_cast<String>(DEVICE_UUID), static_cast<int>(SENSOR_BATTERY_POWER_CONSUMPTION), batteryPowerStr);
+
                 vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
     }

@@ -30,8 +30,6 @@ class TaskLedSwitch : public TaskBase {
 
         static constexpr int pinLedTest = 27;
 
-        //static void taskFunction(void* pvParameters);
-
     private:
         std::map<int, String> parametersValues;
 
