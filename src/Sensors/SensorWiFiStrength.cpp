@@ -27,6 +27,7 @@ void SensorWiFiStrength::task(void* pvParameters) {
         for (int i = 0; i < measurements; i++){
             rssi += WiFi.RSSI();
             vTaskDelay(50 / portTICK_PERIOD_MS);
+            //vTaskDelay(25 / portTICK_PERIOD_MS);
         }
 
         averageRSSI = rssi/measurements;
@@ -36,6 +37,7 @@ void SensorWiFiStrength::task(void* pvParameters) {
         
         self->sendSensorData(static_cast<String>(DEVICE_UUID), static_cast<int>(SENSOR_WIFI_STRENGTH), wifiStrengthStr);
         vTaskDelay(1000 / portTICK_PERIOD_MS); // Delay for 1000ms
+        //vTaskDelay(100 / portTICK_PERIOD_MS); // Delay for 1000ms
     }
     Serial.println("Sensor WifiSignal stopped");
     vTaskDelete(NULL);
