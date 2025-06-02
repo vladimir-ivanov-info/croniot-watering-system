@@ -1,4 +1,4 @@
-#include "SensorWiFiStrength.h"
+#include "SensorWiFiInfo.h"
 
 void SensorWiFiStrength::run(){
     xTaskCreatePinnedToCore(
@@ -27,7 +27,6 @@ void SensorWiFiStrength::task(void* pvParameters) {
         for (int i = 0; i < measurements; i++){
             rssi += WiFi.RSSI();
             vTaskDelay(50 / portTICK_PERIOD_MS);
-            //vTaskDelay(25 / portTICK_PERIOD_MS);
         }
 
         averageRSSI = rssi/measurements;

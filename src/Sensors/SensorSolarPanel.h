@@ -1,7 +1,6 @@
 #ifndef SENSORSOLARPANEL_H
 #define SENSORSOLARPANEL_H
 
-#include "MQTTManager.h"
 #include "Messages/MessageSensorData.h"
 #include "Sensors/SensorDefs.h"
 

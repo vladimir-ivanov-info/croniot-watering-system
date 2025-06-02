@@ -1,7 +1,6 @@
-#ifndef SENSORWIFISTRENGTH_H
-#define SENSORWIFISTRENGTH_H
+#ifndef SENSORWIFIINFO_H
+#define SENSORWIFIINFO_H
 
-#include "MQTTManager.h"
 #include "Messages/MessageSensorData.h"
 #include "Sensors/SensorDefs.h"
 

@@ -1,11 +1,14 @@
-#include <Arduino.h>
 #include "secrets.h"
 #include "CommonSetup.h"
-#include "NetworkManager.h"
+#include "network/NetworkManager.h"
 #include "secrets.h" //TODO create this file as explained in secrets_mock.h
 #include "CommonConstants.h"
 #include "TasksInitializer.h"
 #include "SensorsInitializer.h"
+
+#include "network/http/WifiHttpController.h"
+#include "network/mqtt/WifiMqttController.h"
+#include "network/connection_provider/WifiNetworkConnectionController.h"
 
 void setServer();
 void setupCredentialsAndConnectToServer();
@@ -18,7 +21,7 @@ void setup() {
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 
-  esp_task_wdt_init(10, true); // Set timeout to 10 seconds
+  esp_task_wdt_init(100, true); // Set timeout to 10 seconds
   esp_task_wdt_add(NULL);      // Add loopTask to WDT monitoring
 
   setServer();
@@ -50,10 +53,24 @@ void setServer(){
 }
 
 void setupCredentialsAndConnectToServer(){
-  UserCredentials actualCredentials = UserCredentials(ACCOUNT_EMAIL, ACCOUNT_UUID, ACCOUNT_PASSWORD, DEVICE_UUID, "", DEVICE_NAME, DEVICE_DESCTIPION);
-  CommonSetup::instance().setup(actualCredentials);
+  UserCredentials actualCredentials = UserCredentials(ACCOUNT_EMAIL, ACCOUNT_UUID, ACCOUNT_PASSWORD, DEVICE_UUID, "", DEVICE_NAME, DEVICE_DESCRIPTION);
+
+  HttpProvider::set(new WifiHttpController());
+  MqttProvider::set(new WifiMqttController());
+
+  auto *networkConnectionController = new WifiNetworkConnectionController();
+  bool setupOk = CommonSetup::instance().setup(actualCredentials, networkConnectionController);
+
+  if(setupOk){
+      
+  } else {
+    //TODO
+  }
+
 }
 
 void loop() {
-  CommonSetup::instance().loop();
+  //CommonSetup::instance().loop();
+  vTaskDelay(10000 / portTICK_PERIOD_MS); //TODO see if we remove this, will the loop consume CPU cycles, even if it doesn't do anything?
+  esp_task_wdt_reset();
 }

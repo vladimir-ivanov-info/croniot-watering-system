@@ -2,13 +2,9 @@
 #define TASKLEDSWITCH_H
 
 #include <Arduino.h>
-#include "HttpController.h"
 
 #include "Sensors/SensorDefs.h"
-
 #include <map>
-
-#include "MQTTManager.h"
 #include "Tasks/TaskBase.h"
 #include "Tasks/TaskData.h"
 

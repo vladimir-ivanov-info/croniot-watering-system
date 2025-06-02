@@ -1,7 +1,6 @@
 #ifndef SENSORBATTERY_H
 #define SENSORBATTERY_H
 
-#include "MQTTManager.h"
 #include "Messages/MessageSensorData.h"
 #include "Sensors/SensorDefs.h"
 

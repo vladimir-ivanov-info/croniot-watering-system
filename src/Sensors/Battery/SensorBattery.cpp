@@ -15,7 +15,7 @@ void SensorBattery::run(){
 void SensorBattery::taskBattery(void* pvParameters) {
     SensorBattery* self = static_cast<SensorBattery*>(pvParameters);
 
-    Serial.println("SensorBattery task initialized...");
+    Serial.println("SensorBattery initialized...");
 
     while (true) {
         while(self->continueTask){

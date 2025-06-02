@@ -1,7 +1,6 @@
 #ifndef SENSORCURRENTTIME_H
 #define SENSORCURRENTTIME_H
 
-#include "MQTTManager.h"
 #include "Messages/MessageSensorData.h"
 #include "Sensors/SensorDefs.h"
 

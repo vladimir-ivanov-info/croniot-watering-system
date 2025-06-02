@@ -3,11 +3,8 @@
 
 #include <Arduino.h>
 
-#include "HttpController.h"
-
 #include "Sensors/SensorDefs.h"
-
-#include "MQTTManager.h"
+#include "Tasks/TaskController.h"
 
 #include <map>
 #include "secrets.h"

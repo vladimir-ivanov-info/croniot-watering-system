@@ -35,8 +35,7 @@ void TaskLedSwitch::executeTask(SimpleTaskData& taskData){
         } else {
             //TODO
         }
- 
-
+    
         TaskProgressUpdate taskProgressUpdate(getUid(), taskData.taskUid, parameterSwitchState, 0.0, ""); //TODO RUNNING must be const later
         TaskController::instance().enqueueTaskProgressUpdate(taskProgressUpdate);
     } catch (const std::out_of_range& e) {

@@ -15,7 +15,7 @@ void SensorCurrentTime::run(){
 void SensorCurrentTime::taskCurrentTime(void* pvParameters) {
     SensorCurrentTime* self = static_cast<SensorCurrentTime*>(pvParameters);
 
-    Serial.println("SensorCurrentTime task initialized...");
+    Serial.println("SensorCurrentTime initialized...");
 
     while (true) {
         while(self->continueTask){
@@ -32,7 +32,6 @@ void SensorCurrentTime::taskCurrentTime(void* pvParameters) {
 
             //Serial.print("Current time:"); Serial.println(currentTime);
 
-            //MessageSensorData messageSensorData(static_cast<int>(SENSOR_CURRENT_TIME), currentTime);
             self->sendSensorData(static_cast<String>(DEVICE_UUID), static_cast<int>(SENSOR_CURRENT_TIME), currentTime);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }

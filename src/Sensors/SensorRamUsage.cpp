@@ -15,7 +15,7 @@ void SensorRamUsage::run(){
 void SensorRamUsage::taskRamUsage(void* pvParameters) {
     SensorRamUsage* self = static_cast<SensorRamUsage*>(pvParameters);
 
-    Serial.println("RamUsage task initialized...");
+    Serial.println("RamUsage initialized...");
 
     uint32_t totalHeapSize = ESP.getHeapSize()/1024;
 

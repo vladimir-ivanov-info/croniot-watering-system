@@ -15,7 +15,7 @@ void SensorSolarPanel::run(){
 void SensorSolarPanel::taskSolar(void* pvParameters) {
     SensorSolarPanel* self = static_cast<SensorSolarPanel*>(pvParameters);
 
-    Serial.println("SensorSolar task initialized...");
+    Serial.println("SensorSolar initialized...");
 
     while (true) {
         while(self->continueTask){

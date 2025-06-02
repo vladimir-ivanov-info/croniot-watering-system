@@ -5,7 +5,7 @@
 
 #include "Sensors/SensorsController.h"
 
-#include "Sensors/SensorWiFiStrength.h"
+#include "Sensors/SensorWiFiInfo.h"
 #include "Sensors/Battery/SensorBattery.h"
 #include "Sensors/SensorSolarPanel.h"
 #include "Sensors/SensorRamUsage.h"
