@@ -1,0 +1,235 @@
+================================================================================
+ OPTIMIZACIONES DE RECURSOS DE RED - croniot-iot / croniot-watering-system
+ Fecha: 2026-03-08
+================================================================================
+
+RESUMEN DE AHORRO ESTIMADO:
+  - Stacks de tareas FreeRTOS:  ~294 KB liberados
+  - Buffers MQTT:               ~4 KB liberados
+  - Colas FreeRTOS:             ~4 KB liberados
+  - LwIP + WiFi buffers:        ~50-60 KB liberados
+  - Total estimado:             ~350+ KB de RAM
+
+================================================================================
+
+1. SetupTask stack: 158000 -> 20480 bytes (~138 KB liberados)
+   Fichero: croniot-watering-system/main/main.cpp (linea 158)
+   Antes:   xTaskCreatePinnedToCore(SetupTask, "SetupTask", 158000, ...)
+   Ahora:   xTaskCreatePinnedToCore(SetupTask, "SetupTask", 20480, ...)
+   Motivo:  158 KB era excesivo. La tarea solo ejecuta setupCredentialsAndConnectToServer()
+            que crea sub-tareas para el trabajo pesado. 20 KB es suficiente.
+   Revertir: Cambiar 20480 por 158000
+
+--------------------------------------------------------------------------------
+
+2. authenticateWithServerTask stack: 64192 -> 16384 bytes (~48 KB liberados)
+   Fichero: croniot-iot/components/croniot/src/CommonSetup.cpp (linea 52-58)
+   Antes:   xTaskCreate(..., 64192, ...)
+   Ahora:   xTaskCreate(..., 16384, ...)
+   Motivo:  64 KB era excesivo para autenticacion HTTP + parsing JSON con cJSON.
+            cJSON usa heap (no stack) para parsear. 16 KB es suficiente.
+   Revertir: Cambiar 16384 por 64192
+
+--------------------------------------------------------------------------------
+
+3. MQTT internal task stack: 58192 -> 8192 bytes (~50 KB liberados)
+   Fichero: croniot-iot/components/croniot/src/network/mqtt/WifiMqttController.cpp
+   Antes:   config.task.stack_size = 58192;
+   Ahora:   config.task.stack_size = 8192;
+   Motivo:  El task interno de esp-mqtt solo necesita 4-8 KB. El comentario
+            original mencionaba "STL logging" pero 58 KB era desproporcionado.
+   Revertir: Cambiar 8192 por 58192
+
+--------------------------------------------------------------------------------
+
+4. MQTT worker task stack: 8192 -> 4096 bytes (4 KB liberados)
+   Fichero: croniot-iot/components/croniot/src/network/mqtt/WifiMqttController.cpp
+   Antes:   xTaskCreatePinnedToCore(..., 8192, ...)
+   Ahora:   xTaskCreatePinnedToCore(..., 4096, ...)
+   Motivo:  El worker solo desencola mensajes y llama processInWorker() que hace
+            string split y lookup en map. 4 KB es suficiente.
+   Revertir: Cambiar 4096 por 8192 en la linea de xTaskCreatePinnedToCore del worker
+
+--------------------------------------------------------------------------------
+
+5. MQTT message queue: 50 -> 10 slots
+   Fichero: croniot-iot/components/croniot/src/network/mqtt/WifiMqttController.cpp
+   Antes:   msgQueue = xQueueCreate(50, sizeof(MqttMsg*));
+   Ahora:   msgQueue = xQueueCreate(10, sizeof(MqttMsg*));
+   Motivo:  Un sistema de riego recibe comandos esporadicos, no rafagas.
+            10 slots son mas que suficientes.
+   Revertir: Cambiar 10 por 50
+
+--------------------------------------------------------------------------------
+
+6. MQTT buffers RX/TX: 4096 -> 2048 bytes cada uno (4 KB liberados)
+   Fichero: croniot-iot/components/croniot/src/network/mqtt/WifiMqttController.cpp
+   Antes:   config.buffer.size = 4096; config.buffer.out_size = 4096;
+   Ahora:   config.buffer.size = 2048; config.buffer.out_size = 2048;
+   Motivo:  Los mensajes JSON de sensores/tareas son pequenos (<1 KB).
+            2 KB es suficiente para los payloads de este proyecto.
+   Revertir: Cambiar ambos 2048 por 4096
+   NOTA:    Si en el futuro se envian mensajes mas grandes, aumentar estos valores.
+
+--------------------------------------------------------------------------------
+
+7. MQTT keepalive: 30 -> 60 segundos
+   Fichero: croniot-iot/components/croniot/src/network/mqtt/WifiMqttController.cpp
+   Antes:   config.session.keepalive = 30;
+   Ahora:   config.session.keepalive = 60;
+   Motivo:  Los sensores publican periodicamente. Con publicaciones regulares,
+            un keepalive de 60s reduce pings innecesarios al broker.
+   Revertir: Cambiar 60 por 30
+
+--------------------------------------------------------------------------------
+
+8. MQTT reconnect: de crear/destruir FreeRTOS task a esp_timer one-shot
+   Fichero: croniot-iot/components/croniot/src/network/mqtt/WifiMqttController.cpp
+   Antes:   xTaskCreatePinnedToCore(lambda, "mqtt_reconnect_task", 4096, ...)
+            + vTaskDelete(NULL) dentro del lambda
+   Ahora:   esp_timer_create() + esp_timer_start_once(timer, 2000000)
+   Motivo:  Crear y destruir un task FreeRTOS para un simple delay de 2s + restart
+            es costoso (4 KB stack + overhead del scheduler). Un timer one-shot
+            hace lo mismo sin reservar stack adicional.
+   Revertir: Reemplazar el bloque esp_timer por el xTaskCreatePinnedToCore original:
+            xTaskCreatePinnedToCore([](void* param) {
+                auto* self = static_cast<WifiMqttController*>(param);
+                vTaskDelay(pdMS_TO_TICKS(2000));
+                esp_mqtt_client_start(self->mqttClient);
+                vTaskDelete(NULL);
+            }, "mqtt_reconnect_task", 4096, controller, 5, NULL, tskNO_AFFINITY);
+
+--------------------------------------------------------------------------------
+
+9. HTTP keep-alive: deshabilitado -> habilitado
+   Fichero: croniot-iot/components/croniot/src/network/http/WifiHttpController.cpp
+   Antes:   cfg.keep_alive_enable = false;
+   Ahora:   cfg.keep_alive_enable = true;
+            cfg.keep_alive_idle = 5;
+            cfg.keep_alive_interval = 5;
+            cfg.keep_alive_count = 3;
+   Motivo:  Durante autenticacion se hacen 4+ peticiones HTTP secuenciales.
+            Sin keep-alive, cada una necesita un TCP handshake completo.
+            Con keep-alive se reutiliza la conexion TCP, ahorrando ~200-400ms
+            por peticion y reduciendo fragmentacion de memoria.
+   Revertir: Reemplazar las 4 lineas por: cfg.keep_alive_enable = false;
+
+--------------------------------------------------------------------------------
+
+10. WiFi power save: WIFI_PS_NONE -> WIFI_PS_MIN_MODEM
+    Fichero: croniot-iot/components/croniot/src/network/connection_provider/WifiNetworkConnectionController.cpp
+    Antes:   esp_wifi_set_ps(WIFI_PS_NONE);
+    Ahora:   esp_wifi_set_ps(WIFI_PS_MIN_MODEM);
+    Motivo:  WIFI_PS_NONE mantiene la radio WiFi encendida permanentemente.
+             Para un sistema con bateria y panel solar, MIN_MODEM apaga la radio
+             entre intervalos DTIM del AP, ahorrando ~30-50% de consumo WiFi.
+    Revertir: Cambiar WIFI_PS_MIN_MODEM por WIFI_PS_NONE
+    NOTA:    Si experimentas latencia excesiva en MQTT, revertir a WIFI_PS_NONE.
+
+--------------------------------------------------------------------------------
+
+11. NVS PHY calibration: borrado eliminado (arranque mas rapido)
+    Fichero: croniot-iot/components/croniot/src/network/connection_provider/WifiNetworkConnectionController.cpp
+    Antes:   Se borraban las claves "cal_version", "cal_mac", "cal_data" del
+             namespace "phy" y se borraba todo el namespace "nvs.net80211"
+             en CADA ARRANQUE.
+    Ahora:   Comentario indicando que se preservan los datos de calibracion.
+    Motivo:  Borrar la calibracion PHY en cada arranque fuerza recalibracion RF
+             (~1-2s extra por boot) y destruye datos WiFi persistidos.
+             Solo deberia borrarse si hay problemas de conexion.
+    Revertir: Restaurar el bloque de codigo NVS original (ver git diff).
+
+--------------------------------------------------------------------------------
+
+12. TaskBase message queue: 100 -> 10 slots (~720 bytes/task liberados)
+    Fichero: croniot-iot/components/croniot/src/Tasks/TaskBase.cpp
+    Antes:   messageQueue = xQueueCreate(100, sizeof(SimpleTaskData*));
+    Ahora:   messageQueue = xQueueCreate(10, sizeof(SimpleTaskData*));
+    Motivo:  Las tareas (regar, LED, bomba) se ejecutan esporadicamente.
+             100 slots por task era excesivo. Con 5 tasks = 3.6 KB ahorrados.
+    Revertir: Cambiar 10 por 100
+
+--------------------------------------------------------------------------------
+
+13. LwIP y WiFi buffers en sdkconfig
+    Fichero: croniot-watering-system/sdkconfig
+
+    a) WiFi Static RX Buffers: 10 -> 6
+       Antes: CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=10
+       Ahora: CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=6
+       Motivo: El dispositivo solo mantiene 1-2 conexiones activas.
+
+    b) WiFi Dynamic RX Buffers: 32 -> 16
+       Antes: CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=32
+       Ahora: CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=16
+
+    c) WiFi Dynamic TX Buffers: 32 -> 16
+       Antes: CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=32
+       Ahora: CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=16
+
+    d) LwIP Max Sockets: 10 -> 4
+       Antes: CONFIG_LWIP_MAX_SOCKETS=10
+       Ahora: CONFIG_LWIP_MAX_SOCKETS=4
+       Motivo: Solo se necesitan MQTT (1) + HTTP ocasional (1) + DNS (1) + margen (1).
+
+    e) LwIP Max Active TCP: 16 -> 6
+       Antes: CONFIG_LWIP_MAX_ACTIVE_TCP=16
+       Ahora: CONFIG_LWIP_MAX_ACTIVE_TCP=6
+       Motivo: Maximo 2-3 conexiones TCP simultaneas en este dispositivo.
+
+    f) LwIP Max Listening TCP: 16 -> 2
+       Antes: CONFIG_LWIP_MAX_LISTENING_TCP=16
+       Ahora: CONFIG_LWIP_MAX_LISTENING_TCP=2
+       Motivo: El dispositivo es cliente, no servidor. No necesita listeners.
+
+    g) LwIP TCP Send Buffer: 5760 -> 2880
+       Antes: CONFIG_LWIP_TCP_SND_BUF_DEFAULT=5760
+       Ahora: CONFIG_LWIP_TCP_SND_BUF_DEFAULT=2880
+       Motivo: Los payloads JSON son pequenos. 2880 bytes (2x MSS) es suficiente.
+
+    h) LwIP TCP Window: 5760 -> 2880
+       Antes: CONFIG_LWIP_TCP_WND_DEFAULT=5760
+       Ahora: CONFIG_LWIP_TCP_WND_DEFAULT=2880
+       Motivo: Las respuestas del servidor tambien son pequenas.
+
+    i) LwIP Max UDP PCBs: 16 -> 4
+       Antes: CONFIG_LWIP_MAX_UDP_PCBS=16
+       Ahora: CONFIG_LWIP_MAX_UDP_PCBS=4
+       Motivo: Solo DNS y NTP usan UDP. 4 es mas que suficiente.
+
+    Revertir cada uno: Restaurar el valor original indicado en "Antes".
+
+--------------------------------------------------------------------------------
+
+14. ArduinoJson: dependencia eliminada
+    Fichero: croniot-iot/platformio.ini
+    Antes:   lib_deps = bblanchon/ArduinoJson@^7.0.4
+    Ahora:   Linea eliminada
+    Motivo:  El proyecto usa cJSON (built-in de ESP-IDF) para todo el parseo.
+             ArduinoJson estaba declarada como dependencia pero no se usaba
+             en ningun fichero .cpp (solo un comentario en Sim7600.cpp).
+             Eliminarla reduce el tamano del binario en flash.
+    Revertir: Anadir la linea: bblanchon/ArduinoJson@^7.0.4 en lib_deps
+
+================================================================================
+
+NOTAS IMPORTANTES PARA TESTING:
+
+1. STACKS: Si hay stack overflow despues de estos cambios, el ESP32 hara panic
+   reset. Usar uxTaskGetStackHighWaterMark() en las tareas criticas para
+   verificar que queda margen suficiente. Ejemplo:
+     ESP_LOGI(TAG, "Stack HWM: %d", uxTaskGetStackHighWaterMark(NULL));
+
+2. WIFI POWER SAVE: Si MQTT pierde mensajes o hay latencia excesiva,
+   revertir WIFI_PS_MIN_MODEM a WIFI_PS_NONE (punto 10).
+
+3. LWIP SOCKETS: Si hay errores "no more sockets" en los logs, aumentar
+   CONFIG_LWIP_MAX_SOCKETS de 4 a 6.
+
+4. MQTT BUFFERS: Si hay mensajes truncados, aumentar buffer.size y
+   buffer.out_size de 2048 a 4096 (punto 6).
+
+5. Despues de modificar sdkconfig, hacer "idf.py fullclean" o "pio run -t clean"
+   para asegurar que los cambios se aplican.
+
+================================================================================

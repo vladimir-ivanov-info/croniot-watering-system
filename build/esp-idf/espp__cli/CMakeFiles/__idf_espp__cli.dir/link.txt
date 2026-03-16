@@ -1,0 +1,2 @@
+/home/vladimir/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin/xtensa-esp32-elf-ar qc libespp__cli.a CMakeFiles/__idf_espp__cli.dir/src/cli.cpp.obj
+/home/vladimir/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin/xtensa-esp32-elf-ranlib libespp__cli.a
