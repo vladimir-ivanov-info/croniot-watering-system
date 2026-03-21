@@ -1,4 +1,5 @@
 #include "TaskLedTest.h"
+#include <memory>
 
 static const char* TAG = "TaskLedTest";
 
@@ -15,10 +16,10 @@ TaskLedTest::TaskLedTest() : TaskBase("TaskLedTest", 4096, 1, 1) {
 }
 
 void TaskLedTest::loop() {
-    SimpleTaskData* taskData = nullptr;
-    if (xQueueReceive(messageQueue, &taskData, portMAX_DELAY) == pdPASS && taskData) {
+    SimpleTaskData* raw = nullptr;
+    if (xQueueReceive(messageQueue, &raw, portMAX_DELAY) == pdPASS && raw) {
+        std::unique_ptr<SimpleTaskData> taskData(raw);
         executeTask(*taskData);
-        delete taskData;
     }
     ESP_LOGI(TAG, "Loop finished");
 }

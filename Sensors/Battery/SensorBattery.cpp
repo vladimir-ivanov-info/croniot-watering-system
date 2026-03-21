@@ -8,8 +8,7 @@
 static const char* TAG = "SensorBattery";
 static constexpr float MV_TO_V = 0.001f;
 
-// Ajusta este valor con la lectura en reposo (sin carga/corriente) del canal ACS712.
-// Con tus logs, ~2516 mV es un mejor punto de partida.
+
 static constexpr float ACS712_ZERO_CURRENT_VOLTAGE = 2.516f;
 // Cambia según modelo: 0.185 (5A), 0.100 (20A), 0.066 (30A)
 static constexpr float ACS712_SENSITIVITY_V_PER_A = 0.100f;

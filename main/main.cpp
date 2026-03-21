@@ -229,8 +229,8 @@ void setServer() {
     gpio_set_direction(PIN_SERVER_SELECTION, GPIO_MODE_INPUT);
     int pinServeState = gpio_get_level(PIN_SERVER_SELECTION);
 
-
-    Secrets::SERVER_ADDRESS = Secrets::SERVER_ADDRESS_LOCAL; //TODO
+    //Secrets::SERVER_ADDRESS = Secrets::SERVER_ADDRESS_LOCAL; //TODO
+    Secrets::SERVER_ADDRESS = Secrets::SERVER_ADDRESS_REMOTE; //TODO
 
     /*if (pinServeState == 1) {
         Secrets::SERVER_ADDRESS = Secrets::SERVER_ADDRESS_REMOTE;

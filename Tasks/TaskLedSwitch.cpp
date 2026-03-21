@@ -1,5 +1,6 @@
 #include "TaskLedSwitch.h"
 #include "esp_timer.h"
+#include <memory>
 
 static const char* TAG = "TaskLedSwitch";
 
@@ -18,14 +19,14 @@ TaskLedSwitch::TaskLedSwitch() : TaskBase("TaskLedSwitch", 4096, 1, 1) {
 }
 
 void TaskLedSwitch::loop() {
-    SimpleTaskData *taskData = nullptr;
-    if (xQueueReceive(messageQueue, &taskData, portMAX_DELAY) == pdPASS && taskData) {
+    SimpleTaskData *raw = nullptr;
+    if (xQueueReceive(messageQueue, &raw, portMAX_DELAY) == pdPASS && raw) {
+        std::unique_ptr<SimpleTaskData> taskData(raw);
         int64_t tReceived = esp_timer_get_time();
         ESP_LOGW(TAG, "TIMING: task dequeued at %lld", tReceived);
         executeTask(*taskData);
         int64_t tDone = esp_timer_get_time();
         ESP_LOGW(TAG, "TIMING: executeTask took %lldus", (tDone - tReceived));
-        delete taskData;
     }
 
    /* SimpleTaskData* taskDataPtr;

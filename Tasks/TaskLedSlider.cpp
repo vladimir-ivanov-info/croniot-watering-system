@@ -1,4 +1,5 @@
 #include "TaskLedSlider.h"
+#include <memory>
 
 static const char* TAG = "TaskLedSlider";
 static void analogWrite(int pin, int value);
@@ -59,11 +60,11 @@ static void analogWrite(int pin, int value) {
 }
 
 void TaskLedSlider::loop() {
-    SimpleTaskData *taskData = nullptr;
-    if (xQueueReceive(messageQueue, &taskData, portMAX_DELAY) == pdPASS && taskData) {
+    SimpleTaskData *raw = nullptr;
+    if (xQueueReceive(messageQueue, &raw, portMAX_DELAY) == pdPASS && raw) {
+        std::unique_ptr<SimpleTaskData> taskData(raw);
         ESP_LOGI(TAG, "----------------> Received new task TaskLedSlider");
         executeTask(*taskData);
-        delete taskData;
     }
 
    /* SimpleTaskData* taskDataPtr;

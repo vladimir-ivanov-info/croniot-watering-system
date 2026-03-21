@@ -1,5 +1,6 @@
 #include "TaskWaterPlants.h"
 #include <cmath>
+#include <memory>
 
 static const char* TAG = "TaskWaterPlants";
 
@@ -22,10 +23,10 @@ TaskWaterPlants::TaskWaterPlants() : TaskBase("TaskWaterPlants", 4096, 1, 1) {
 }
 
 void TaskWaterPlants::loop() {
-    SimpleTaskData* taskData = nullptr;
-    if (xQueueReceive(messageQueue, &taskData, portMAX_DELAY) == pdPASS && taskData) {
+    SimpleTaskData* raw = nullptr;
+    if (xQueueReceive(messageQueue, &raw, portMAX_DELAY) == pdPASS && raw) {
+        std::unique_ptr<SimpleTaskData> taskData(raw);
         executeTask(*taskData);
-        delete taskData;
     }
     ESP_LOGI(TAG, "Loop finished");
 }

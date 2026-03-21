@@ -81,7 +81,7 @@ void SensorWiFiStrength::task(void* pvParameters) {
 
         int average_rssi = rssi_sum / measurements;
         std::string rssi_str = std::to_string(average_rssi);
-    ESP_LOGI(TAG, "Sensor WiFi strength: %s", rssi_str.c_str());
+   // ESP_LOGI(TAG, "Sensor WiFi strength: %s", rssi_str.c_str());
 
         self->sendSensorData(std::string(DEVICE_UUID), SENSOR_WIFI_STRENGTH, rssi_str);
 

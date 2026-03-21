@@ -29,7 +29,7 @@ void SensorsInitializer::registerSensorTypes(){
   SensorType *sensor6 = new SensorType(std::to_string(SENSOR_RAM_USAGE), "RAM usage", "RAM memory usage", Parameter(1, "RAM usage", PARAMETERS_NUMBER, "RAM usage at a given moment", "KB", constraints7));
 
   std::map<std::string, std::string> constraints8; // = {{PARAMETERS_NUMBER_MIN_VALUE, "0"}, {PARAMETERS_NUMBER_MAX_VALUE, String(ESP.getHeapSize()/1024)}};
-  SensorType *sensorCurrentTime = new SensorType(std::to_string(SENSOR_CURRENT_TIME), "System time", "Current device's time", Parameter(1, "System time", PARAMETERS_STRING, "Current device's time", "", constraints8));
+  SensorType *sensorCurrentTime = new SensorType(std::to_string(SENSOR_CURRENT_TIME), "System time", "Current device time", Parameter(1, "System time", PARAMETERS_STRING, "Current device time", "", constraints8));
 
 
   SensorsController::instance().addSensorType(sensor2);

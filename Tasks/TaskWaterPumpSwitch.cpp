@@ -1,4 +1,5 @@
 #include "TaskWaterPumpSwitch.h"
+#include <memory>
 
 static const char* TAG = "TaskWaterPumpSwitch";
 
@@ -15,10 +16,10 @@ TaskWaterPumpSwitch::TaskWaterPumpSwitch() : TaskBase("TaskWaterPumpSwitch", 409
 }
 
 void TaskWaterPumpSwitch::loop() {
-    SimpleTaskData* taskData = nullptr;
-    if (xQueueReceive(messageQueue, &taskData, portMAX_DELAY) == pdPASS && taskData) {
+    SimpleTaskData* raw = nullptr;
+    if (xQueueReceive(messageQueue, &raw, portMAX_DELAY) == pdPASS && raw) {
+        std::unique_ptr<SimpleTaskData> taskData(raw);
         executeTask(*taskData);
-        delete taskData;
     }
     ESP_LOGI(TAG, "Loop finished");
 }
