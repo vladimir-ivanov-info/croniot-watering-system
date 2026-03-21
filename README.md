@@ -6,6 +6,10 @@ Controls water pumps and solenoid valves, monitors battery and solar panel statu
 
 ~2,000 lines of device-specific code on top of the [croniot-iot](https://github.com/user/croniot-iot) framework (~4,500 lines). **70% of the code is reused** — connectivity, authentication, HTTP / MQTT routing, and persistence come from the framework, so this project focuses entirely on what the device does.
 
+### Click below to watch a full demo of croniot-watering-system in action
+
+[![Demo video](https://img.youtube.com/vi/sxZ00cP9hIw/maxresdefault.jpg)](https://www.youtube.com/watch?v=sxZ00cP9hIw)
+
 | Mobile app view | Watering System's sensors | Watering System's task types
 |-------|-------------|---------------|
 | <img src="https://github.com/user-attachments/assets/cd27be2e-1d4f-46ed-a95f-bbec3fe6605d" width="320"> | <img src="https://github.com/user-attachments/assets/d358e151-9356-4e53-bb6c-8f6e5ca79828" width="320"> | <img src="https://github.com/user-attachments/assets/c3ffa9cd-32e9-45f0-9d6f-8a593c10ac07" width="320"> |
