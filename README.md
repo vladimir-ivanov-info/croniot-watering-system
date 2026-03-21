@@ -159,7 +159,3 @@ Copy `secrets_mock.h` to `secrets.h` and fill in your WiFi credentials and serve
 | Storage | LittleFS |
 | Communication | MQTT + HTTP (WiFi → cloud server) |
 | Power | 12V battery + solar panel |
-
-## License
-
-MIT
