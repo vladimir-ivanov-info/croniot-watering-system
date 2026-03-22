@@ -4,7 +4,7 @@
 
 Controls water pumps and solenoid valves, monitors battery and solar panel status, and streams real-time data to a mobile app — all remotely manageable from anywhere through a cloud server via MQTT.
 
-~2,000 lines of device-specific code on top of the [croniot-iot](https://github.com/user/croniot-iot) framework (~4,500 lines). **70% of the code is reused** — connectivity, authentication, HTTP / MQTT routing, and persistence come from the framework, so this project focuses entirely on what the device does.
+~2,000 lines of device-specific code on top of the [croniot](https://github.com/user/croniot-iot) framework (~4,500 lines). **70% of the code is reused** — connectivity, authentication, HTTP / MQTT routing, and persistence come from the framework, so this project focuses entirely on what the device does.
 
 ### Click below to watch a full demo of croniot-watering-system in action
 
@@ -16,7 +16,7 @@ Controls water pumps and solenoid valves, monitors battery and solar panel statu
 
 | Scheduled task | Stateful task
 |-------|-------------|
-|  <img src="https://github.com/user-attachments/assets/84161598-574b-4171-a8ba-ec5840636a6f" width="320"> | <img src="https://github.com/user-attachments/assets/44c3d697-619d-4d16-856c-4f63870e46c7" width="320"> |
+|  <img src="https://github.com/user-attachments/assets/84161598-574b-4171-a8ba-ec5840636a6f" width="310"> | <img src="https://github.com/user-attachments/assets/44c3d697-619d-4d16-856c-4f63870e46c7" width="310"> |
 
 
 ---
@@ -153,7 +153,7 @@ Copy `secrets_mock.h` to `secrets.h` and fill in your WiFi credentials and serve
 | MCU | ESP32-C6 (RISC-V, 160MHz) |
 | Framework | ESP-IDF via PlatformIO |
 | Language | C++17 |
-| IoT Framework | [croniot-iot](https://github.com/user/croniot-iot) |
+| IoT Framework | [croniot](https://github.com/user/croniot-iot) |
 | ADC | ADS1115 (16-bit, I2C) |
 | Current Sensor | ACS712 (20A model) |
 | Storage | LittleFS |
