@@ -8,7 +8,7 @@ idf_component_register(
         "main.cpp"
         "../SensorsInitializer.cpp"
         "../TasksInitializer.cpp"
-        #"../Sensors/ADS1115Controller.cpp"
+        "../Sensors/ADS1115Controller.cpp"
         "../Sensors/Battery/SensorBattery.cpp"
         "../Sensors/SensorCurrentTime.cpp"
         "../Sensors/SensorRamUsage.cpp"

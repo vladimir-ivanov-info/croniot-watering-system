@@ -9,7 +9,6 @@ using namespace std::chrono_literals;
 static const char* TAG = "ADS1115Controller";
 
 ADS1115Controller::ADS1115Controller() {
-    // Crear instancia de I2C con los pines correctos
     i2c = std::make_unique<espp::I2c>(espp::I2c::Config{
         .port = I2C_NUM_0,
         .sda_io_num = GPIO_NUM_21,
