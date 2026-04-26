@@ -23,7 +23,7 @@ void SensorSolarPanel::taskSolar(void* pvParameters) {
                 solarPowerStr = std::to_string(solarPower);
             }
 
-            self->sendSensorData(std::string(DEVICE_UUID), SENSOR_SOLAR_POWER, solarPowerStr);
+            self->sendSensorData(SENSOR_SOLAR_POWER, solarPowerStr);
 
             if (solarPowerStr == "0") {
                 vTaskDelay(pdMS_TO_TICKS(5000));

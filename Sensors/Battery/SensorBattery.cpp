@@ -56,8 +56,8 @@ void SensorBattery::taskBattery(void* pvParameters) {
         const std::string batteryPowerStr = formatMax2Decimals(batteryPower);
         const std::string batteryVoltageStr = formatMax2Decimals(batteryVoltage);
 
-        self->sendSensorData(DEVICE_UUID, SENSOR_BATTERY_PERCENTAGE, batteryPercentageStr);
-        self->sendSensorData(DEVICE_UUID, SENSOR_BATTERY_POWER_CONSUMPTION, batteryPowerStr);
+        self->sendSensorData(SENSOR_BATTERY_PERCENTAGE, batteryPercentageStr);
+        self->sendSensorData(SENSOR_BATTERY_POWER_CONSUMPTION, batteryPowerStr);
 
         vTaskDelay(pdMS_TO_TICKS(3000));
     }

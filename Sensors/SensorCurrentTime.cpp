@@ -20,9 +20,11 @@ void SensorCurrentTime::taskCurrentTime(void* pvParameters) {
 
     ESP_LOGI(TAG, "SensorCurrentTime initialized...");
 
-    while (true) {
-        while (self->continueTask) {
+    TickType_t lastWakeTime = xTaskGetTickCount();
+    const TickType_t period = pdMS_TO_TICKS(1000);
 
+    while (true) {
+        if (self->continueTask) {
             DateTime* dateTime = CurrentDateTimeController::instance().getDateTime();
 
             // Construir string con C++ std::string
@@ -31,11 +33,14 @@ void SensorCurrentTime::taskCurrentTime(void* pvParameters) {
             std::string currentTime(buffer);
 
 
-            //ESP_LOGI(TAG, "Time: %s", currentTime.c_str());
+            ESP_LOGI(TAG, "Time: %s", currentTime.c_str());
 
-            self->sendSensorData(std::string(DEVICE_UUID), static_cast<int>(SENSOR_CURRENT_TIME), currentTime);
+            self->sendSensorData(static_cast<int>(SENSOR_CURRENT_TIME), currentTime);
 
-            vTaskDelay(pdMS_TO_TICKS(1000));
+            // Keep a stable 1 Hz cadence even if publishing introduces jitter.
+            vTaskDelayUntil(&lastWakeTime, period);
+        } else {
+            vTaskDelay(pdMS_TO_TICKS(200));
         }
     }
 }
