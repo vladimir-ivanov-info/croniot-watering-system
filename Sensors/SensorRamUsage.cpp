@@ -28,7 +28,7 @@ void SensorRamUsage::taskRamUsage(void* pvParameters) {
 
             std::string usageRam = std::to_string(usedHeap);
         //    ESP_LOGI(TAG, "Usage RAM: %s", usageRam.c_str());
-            self->sendSensorData(std::string(DEVICE_UUID), static_cast<int>(SENSOR_RAM_USAGE), usageRam);
+            self->sendSensorData(static_cast<int>(SENSOR_RAM_USAGE), usageRam);
 
             vTaskDelay(pdMS_TO_TICKS(1000));
         }
