@@ -54,6 +54,8 @@ jobs:
           repository: vladimir-ivanov-info/croniot-iot
           ref: ${{ steps.pinned_ref.outputs.ref }}
           path: croniot-iot
+          # croniot-iot vendors components/espp as a git submodule.
+          submodules: true
 
       - name: idf.py build
         shell: bash
