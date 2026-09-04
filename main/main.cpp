@@ -75,8 +75,9 @@ void SetupTask(void* pvParameters) {
     config.accountUuid       = ACCOUNT_UUID;
     config.accountPassword   = ACCOUNT_PASSWORD;
 
-    config.channels = { croniot::ChannelType::Remote/*, croniot::ChannelType::Ble */};
-
+    //config.channels = { croniot::ChannelType::Remote/*, croniot::ChannelType::Ble */};
+    config.channels = { croniot::ChannelType::Ble };
+    
     config.remote.transport       = croniot::RemoteTransport::Wifi;
     config.remote.serverAddress   = Secrets::SERVER_ADDRESS;
     config.remote.serverHttpPort  = Secrets::SERVER_PORT;
@@ -85,6 +86,7 @@ void SetupTask(void* pvParameters) {
     config.remote.wifiPassword    = Secrets::WIFI_PASSWORD;
 
     config.ble.localName = DEVICE_NAME;
+    config.ble.password  = BLE_PASSWORD;
 
     if (!CommonSetup::instance().setup(config)) {
         ESP_LOGE(TAG, "Setup failed");

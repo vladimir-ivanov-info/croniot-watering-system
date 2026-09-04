@@ -11,6 +11,8 @@
 #include "Tasks/SimpleTaskData.h"
 #include "Tasks/TaskProgressUpdate.h"
 #include "Tasks/TaskController.h"
+#include "Tasks/Esp32WaterGpioDriver.h"
+#include "Tasks/WaterSequenceController.h"
 
 #include "Sensors/SensorDefs.h"
 #include "secrets.h"
@@ -35,10 +37,8 @@ public:
 private:
     std::map<int, std::string> parametersValues;
 
-    void openWaterValve();
-    void closeWaterValve();
-    void startWatering();
-    void stopWatering();
+    Esp32WaterGpioDriver gpioDriver_;
+    WaterSequenceController sequence_;
 
     void executeTask(SimpleTaskData& taskData) override;
 };

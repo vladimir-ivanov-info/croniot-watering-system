@@ -12,6 +12,7 @@
 #define DEVICE_UUID "watering_system_1"
 #define DEVICE_NAME "Watering System"
 #define DEVICE_DESCTIPION "This device is for watering plants. You can choose different tasks: do you want to water the plants now or set an alarm for automatic watering later?"
+#define BLE_PASSWORD "123456" // BLE passkey: exactly 6 numeric digits
 
 #include <Arduino.h>
 

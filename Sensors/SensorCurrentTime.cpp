@@ -1,4 +1,5 @@
 #include "SensorCurrentTime.h"
+#include "Sensors/SensorCurrentTimeLogic.h"
 #include "esp_log.h"
 
 static const char* TAG = "SensorCurrentTime";
@@ -27,13 +28,10 @@ void SensorCurrentTime::taskCurrentTime(void* pvParameters) {
         if (self->continueTask) {
             DateTime* dateTime = CurrentDateTimeController::instance().getDateTime();
 
-            // Construir string con C++ std::string
-            char buffer[16];
-            snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d", dateTime->hour, dateTime->minute, dateTime->second);
-            std::string currentTime(buffer);
+            std::string currentTime = SensorCurrentTimeLogic::formatHms(dateTime->hour, dateTime->minute, dateTime->second);
 
 
-            ESP_LOGI(TAG, "Time: %s", currentTime.c_str());
+          //TODO  ESP_LOGI(TAG, "Time: %s", currentTime.c_str());
 
             self->sendSensorData(static_cast<int>(SENSOR_CURRENT_TIME), currentTime);
 

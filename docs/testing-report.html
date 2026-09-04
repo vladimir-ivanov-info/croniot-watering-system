@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testing Croniot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f8f7;
+    --surface: #ffffff;
+    --surface-2: #eef3f2;
+    --ink: #10181a;
+    --ink-muted: #4b5b5e;
+    --line: #dbe4e2;
+    --teal: #0b6e77;
+    --teal-soft: #e3f1f1;
+    --amber: #a15f16;
+    --amber-soft: #faeedb;
+    --green: #226b47;
+    --green-soft: #e2f2e9;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1315;
+      --surface: #101b1d;
+      --surface-2: #142224;
+      --ink: #e7eeec;
+      --ink-muted: #93a9a7;
+      --line: #1e2c2e;
+      --teal: #4fd1c7;
+      --teal-soft: #102b2b;
+      --amber: #e3a252;
+      --amber-soft: #2c210f;
+      --green: #58c690;
+      --green-soft: #0f2a1c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1315;
+    --surface: #101b1d;
+    --surface-2: #142224;
+    --ink: #e7eeec;
+    --ink-muted: #93a9a7;
+    --line: #1e2c2e;
+    --teal: #4fd1c7;
+    --teal-soft: #102b2b;
+    --amber: #e3a252;
+    --amber-soft: #2c210f;
+    --green: #58c690;
+    --green-soft: #0f2a1c;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    padding: 0 20px 96px;
+  }
+
+  ::selection { background: var(--teal-soft); color: var(--ink); }
+
+  a { color: var(--teal); }
+
+  img { max-width: 100%; }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  h1, h2, h3 { text-wrap: balance; font-family: var(--sans); }
+
+  /* ---------- Masthead ---------- */
+
+  header.masthead {
+    padding: 56px 0 32px;
+    border-bottom: 1px solid var(--line);
+    opacity: 0;
+    animation: rise .5s ease-out forwards;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 0 0 14px;
+  }
+
+  h1.title {
+    font-size: clamp(32px, 5vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+  }
+
+  .lede {
+    color: var(--ink-muted);
+    font-size: 17px;
+    max-width: 62ch;
+    margin: 0 0 22px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+  }
+
+  .meta-chip {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 5px 10px;
+    color: var(--ink-muted);
+  }
+
+  .meta-chip b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Stat strip ---------- */
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin: 32px 0 8px;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 18px 16px;
+  }
+
+  .stat .num {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--teal);
+    display: block;
+  }
+
+  .stat .label {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+
+  @media (max-width: 620px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ---------- Sections ---------- */
+
+  section.block {
+    padding: 44px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  section.block:last-of-type { border-bottom: none; }
+
+  .block .eyebrow { margin-bottom: 10px; }
+
+  h2.htitle {
+    font-size: 23px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+
+  .block > p.intro {
+    color: var(--ink-muted);
+    max-width: 65ch;
+    margin: 0 0 24px;
+  }
+
+  /* repo pill next to h2 */
+  .repo-tag {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: .02em;
+    padding: 3px 8px;
+    border: 1px solid var(--line);
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+  .htitle-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+
+  /* ---------- Item cards (what was implemented) ---------- */
+
+  .items {
+    display: grid;
+    gap: 10px;
+  }
+
+  .item {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 16px 18px;
+  }
+
+  .item h3 {
+    font-size: 15.5px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .item p {
+    margin: 0;
+    color: var(--ink-muted);
+    font-size: 14.5px;
+  }
+
+  .item code, p code, li code {
+    font-family: var(--mono);
+    font-size: .92em;
+    background: var(--surface-2);
+    padding: .1em .35em;
+    border-radius: 3px;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .tag-pass { background: var(--green-soft); color: var(--green); }
+  .tag-reported { background: var(--amber-soft); color: var(--amber); }
+  .tag-caught { background: var(--teal-soft); color: var(--teal); }
+
+  /* ---------- Findings ---------- */
+
+  .finding {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+  .finding .fhead {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .finding h3 { font-size: 15px; margin: 0; font-weight: 600; }
+  .finding p { margin: 0; color: var(--ink-muted); font-size: 14.5px; }
+  .finding p + p { margin-top: 8px; }
+
+  /* ---------- File table ---------- */
+
+  table.files {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  table.files th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 500;
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.files td {
+    padding: 8px 10px 8px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.files tr:last-child td { border-bottom: none; }
+  table.files td.path {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  table.files td.desc { color: var(--ink-muted); }
+  .status-new { color: var(--teal); font-family: var(--mono); font-size: 11px; }
+  .status-mod { color: var(--amber); font-family: var(--mono); font-size: 11px; }
+
+  .file-scroll { overflow-x: auto; }
+
+  details.repo-files {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    margin-bottom: 12px;
+  }
+  details.repo-files summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  details.repo-files summary::-webkit-details-marker { display: none; }
+  details.repo-files summary::after {
+    content: "+";
+    font-size: 16px;
+    color: var(--ink-muted);
+  }
+  details.repo-files[open] summary::after { content: "−"; }
+  details.repo-files .file-scroll { padding: 0 16px 16px; }
+
+  /* ---------- Verify / code blocks ---------- */
+
+  .codeblock {
+    position: relative;
+    background: #0d1618;
+    border: 1px solid var(--line);
+    color: #d7e6e3;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 14px 44px 14px 16px;
+    margin: 0 0 14px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #1a2a2c;
+    color: #9fb3b1;
+    border: 1px solid #26383a;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { color: #d7e6e3; border-color: #3a4f52; }
+  .copy-btn:focus-visible, a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  .verify-group h3 {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 500;
+    margin: 22px 0 8px;
+  }
+  .verify-group:first-child h3 { margin-top: 0; }
+
+  /* ---------- Footer note ---------- */
+
+  .closing {
+    padding: 40px 0 0;
+    color: var(--ink-muted);
+    font-size: 14px;
+  }
+  .closing b { color: var(--ink); }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    header.masthead { animation: none; opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <header class="masthead">
+    <p class="eyebrow">Informe de implementación</p>
+    <h1 class="title">Testing Croniot</h1>
+    <p class="lede">Infraestructura de tests unitarios y CI para el controlador de riego <code>croniot-watering-system</code> y su SDK <code>croniot-iot</code>. Fases 1 y núcleo de la Fase 2 del plan, implementadas y validadas contra el toolchain real.</p>
+    <div class="meta-row">
+      <span class="meta-chip">Rama <b>feature/ble-password</b></span>
+      <span class="meta-chip">2 repositorios</span>
+      <span class="meta-chip">4 sep 2026</span>
+      <span class="meta-chip">Sin commitear</span>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><span class="num">82</span><span class="label">tests pasando</span></div>
+    <div class="stat"><span class="num">0.4s</span><span class="label">tiempo total ctest</span></div>
+    <div class="stat"><span class="num">2</span><span class="label">bugs reales atrapados</span></div>
+    <div class="stat"><span class="num">3</span><span class="label">workflows de CI</span></div>
+  </div>
+
+  <section class="block">
+    <div class="htitle-row">
+      <p class="eyebrow" style="margin-bottom:0">Sensores</p>
+      <span class="repo-tag">croniot-watering-system</span>
+    </div>
+    <h2 class="htitle">Lógica pura extraída de cada sensor</h2>
+    <p class="intro">Cada sensor mezclaba matemática pura con llamadas a hardware (I2C, WiFi, FreeRTOS). Se extrajo la parte pura a módulos <code>*Logic</code> sin ninguna dependencia de ESP-IDF, testeables en segundos sobre cualquier máquina.</p>
+    <div class="items">
+      <div class="item">
+        <h3>SensorBatteryLogic <span class="tag tag-pass">testeado</span></h3>
+        <p>Curva voltaje→porcentaje, clamping 0-100% y formateo de decimales.</p>
+      </div>
+      <div class="item">
+        <h3>SensorSolarPanelLogic <span class="tag tag-pass">testeado</span></h3>
+        <p>Conversión ADC→voltios/amperios y el umbral de reporte (&gt;14V o &ge;0.7A).</p>
+      </div>
+      <div class="item">
+        <h3>SensorWiFiInfoLogic <span class="tag tag-pass">testeado</span></h3>
+        <p>Validación de rango RSSI y promedio, incluido el caso de cero muestras válidas.</p>
+      </div>
+      <div class="item">
+        <h3>SensorCurrentTimeLogic <span class="tag tag-pass">testeado</span></h3>
+        <p>Formateo <code>HH:MM:SS</code> con padding, desacoplado del singleton de reloj.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="htitle-row">
+      <p class="eyebrow" style="margin-bottom:0">Riego</p>
+      <span class="repo-tag">croniot-watering-system</span>
+    </div>
+    <h2 class="htitle">La pieza más crítica: bomba y válvulas</h2>
+    <p class="intro"><code>TaskWaterPlants</code> mezclaba la secuencia de apertura/riego/cierre directamente con llamadas a GPIO — imposible de testear sin hardware real. Se introdujo una interfaz de driver para poder simular la bomba y las válvulas.</p>
+    <div class="items">
+      <div class="item">
+        <h3>IWaterGpioDriver + WaterSequenceController <span class="tag tag-pass">testeado</span></h3>
+        <p>La secuencia abrir→regar→parar→cerrar ahora se verifica pin por pin con un driver simulado, sin tocar hardware.</p>
+      </div>
+      <div class="item">
+        <h3>Validación de duración <span class="tag tag-pass">corregido</span></h3>
+        <p>El rango 1-600s solo existía como metadato — nunca se aplicaba. Ahora se recorta (<code>clampDurationSeconds</code>) antes de mover la bomba.</p>
+      </div>
+      <div class="item">
+        <h3>Riesgo bomba compartida <span class="tag tag-reported">documentado</span></h3>
+        <p><code>TaskWaterPumpSwitch</code> puede encender la bomba sin abrir ninguna válvula, sin que <code>TaskWaterPlants</code> se entere. Test explícito que deja el riesgo visible — no se resuelve aquí.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="htitle-row">
+      <p class="eyebrow" style="margin-bottom:0">BLE &amp; mensajería</p>
+      <span class="repo-tag">croniot-iot</span>
+    </div>
+    <h2 class="htitle">El SDK: passkey BLE y ruteo de mensajes</h2>
+    <p class="intro">El punto de mockeo más limpio del SDK es <code>CommChannel</code>. Se construyó un canal falso para verificar cómo <code>MessageBus</code> reparte los mensajes entre canales, y se aisló la validación del passkey BLE del stack de NimBLE.</p>
+    <div class="items">
+      <div class="item">
+        <h3>BleChannelLogic <span class="tag tag-pass">testeado</span></h3>
+        <p>Validación del passkey de 6 dígitos (corto, largo, no numérico, ceros a la izquierda, vacío) sin arrancar NimBLE.</p>
+      </div>
+      <div class="item">
+        <h3>FakeCommChannel + MessageBus <span class="tag tag-pass">testeado</span></h3>
+        <p>Confirma que login/registro van solo al canal con auth, que los datos se difunden a todos los canales, y el modo "solo BLE" que usa esta misma rama.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Validación real, no solo en host</p>
+    <h2 class="htitle">Dos bugs que el build en host nunca hubiera visto</h2>
+    <p class="intro">Además de los 82 tests, se corrió <code>idf.py build</code> contra el target real (esp32-c6) usando el ESP-IDF 5.4.1 instalado localmente. Eso reveló dos errores introducidos por el propio refactor:</p>
+    <div class="finding">
+      <div class="fhead"><h3>Excepciones de C++ deshabilitadas en este build</h3><span class="tag tag-caught">atrapado y corregido</span></div>
+      <p>El primer intento de <code>parseDurationSeconds</code> usaba <code>try/catch</code>. Este proyecto compila con <code>CONFIG_COMPILER_CXX_EXCEPTIONS=n</code> — ni siquiera compilaba. Se reescribió con <code>std::from_chars</code>, sin excepciones, preservando el mismo comportamiento (incluida la rareza de que <code>"30abc"</code> parsea como <code>30</code>).</p>
+    </div>
+    <div class="finding">
+      <div class="fhead"><h3>Definición huérfana en SensorBattery.cpp</h3><span class="tag tag-caught">atrapado y corregido</span></div>
+      <p>Al mover <code>voltsToPercentage</code> a <code>SensorBatteryLogic</code> quedó la implementación vieja suelta en el <code>.cpp</code>, sin declaración en el header. El compilador real lo marcó de inmediato; los tests en host nunca lo hubieran notado porque no compilan ese archivo.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Reportado, no corregido</p>
+    <h2 class="htitle">Hallazgos que quedan fuera de este trabajo</h2>
+    <p class="intro">Por decisión tuya durante la sesión, estos quedan documentados pero intactos:</p>
+    <div class="finding">
+      <div class="fhead"><h3>BLE sin autenticación real</h3><span class="tag tag-reported">reportado</span></div>
+      <p><code>main.cpp</code> fija <code>ble.password</code> pero nunca <code>ble.securityEnabled = true</code> — el pairing nunca se activa pese a haber contraseña configurada. Falla en modo abierto, no cerrado.</p>
+    </div>
+    <div class="finding">
+      <div class="fhead"><h3>sdkconfig versionado con Bluetooth apagado</h3><span class="tag tag-reported">reportado</span></div>
+      <p>Un <code>idf.py build</code> limpio en esta rama fallaría igual: <code>CONFIG_BT_ENABLED</code> no está activo en el <code>sdkconfig</code> commiteado, justo en la rama que depende de BLE.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Integración continua</p>
+    <h2 class="htitle">Tres workflows, dos repos</h2>
+    <p class="intro">GitHub Actions en ambos repositorios. El compile-gate real corre en un contenedor <code>espressif/idf:v5.4.1</code> y hace checkout de <code>croniot-iot</code> como directorio hermano, pineado por SHA en <code>.ci/croniot-iot-ref.txt</code> para que un cambio ajeno en el SDK no rompa el CI de este repo en silencio.</p>
+    <div class="items">
+      <div class="item">
+        <h3>host-tests <span class="repo-tag" style="margin-left:auto">ambos repos</span></h3>
+        <p>Compila y corre los 82 tests con <code>ctest</code>. Sin toolchain ESP-IDF — el job más rápido, primero en reportar en cada PR.</p>
+      </div>
+      <div class="item">
+        <h3>compile-esp32c6 <span class="repo-tag" style="margin-left:auto">watering-system</span></h3>
+        <p>Build real de firmware para el target esp32-c6. El mismo comando validado localmente en esta sesión.</p>
+      </div>
+      <div class="item">
+        <h3>static-analysis <span class="repo-tag" style="margin-left:auto">ambos repos</span></h3>
+        <p>cppcheck, no bloqueante todavía — se espera ruido contra el código legacy no tocado hasta ajustar supresiones.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Verificar localmente</p>
+    <h2 class="htitle">Cómo correrlo tú mismo</h2>
+
+    <div class="verify-group">
+      <h3>croniot-watering-system — tests en host</h3>
+      <div class="codeblock" data-copy>cd test_host
+cmake -S . -B build
+cmake --build build -j
+ctest --test-dir build --output-on-failure</div>
+    </div>
+
+    <div class="verify-group">
+      <h3>croniot-iot — tests en host</h3>
+      <div class="codeblock" data-copy>cd components/croniot/test_host
+cmake -S . -B build
+cmake --build build -j
+ctest --test-dir build --output-on-failure</div>
+    </div>
+
+    <div class="verify-group">
+      <h3>Build real contra esp32-c6</h3>
+      <div class="codeblock" data-copy>source $IDF_PATH/export.sh
+idf.py build</div>
+    </div>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow">Archivos tocados</p>
+    <h2 class="htitle">Inventario completo</h2>
+
+    <details class="repo-files">
+      <summary>croniot-watering-system — 14 nuevos · 12 modificados</summary>
+      <div class="file-scroll">
+        <table class="files">
+          <tr><th>Archivo</th><th>Estado</th><th>Qué es</th></tr>
+          <tr><td class="path">Sensors/Battery/SensorBatteryLogic.{h,cpp}</td><td class="status-new">nuevo</td><td class="desc">Lógica pura de batería</td></tr>
+          <tr><td class="path">Sensors/SensorSolarPanelLogic.{h,cpp}</td><td class="status-new">nuevo</td><td class="desc">Lógica pura de panel solar</td></tr>
+          <tr><td class="path">Sensors/SensorWiFiInfoLogic.{h,cpp}</td><td class="status-new">nuevo</td><td class="desc">Lógica pura de RSSI</td></tr>
+          <tr><td class="path">Sensors/SensorCurrentTimeLogic.{h,cpp}</td><td class="status-new">nuevo</td><td class="desc">Formateo de hora</td></tr>
+          <tr><td class="path">Tasks/IWaterGpioDriver.h</td><td class="status-new">nuevo</td><td class="desc">Interfaz de GPIO de riego</td></tr>
+          <tr><td class="path">Tasks/Esp32WaterGpioDriver.h</td><td class="status-new">nuevo</td><td class="desc">Implementación real (gpio_set_level)</td></tr>
+          <tr><td class="path">Tasks/WaterSequenceController.h</td><td class="status-new">nuevo</td><td class="desc">Secuencia abrir/regar/cerrar, pura</td></tr>
+          <tr><td class="path">Tasks/TaskWaterPlantsLogic.{h,cpp}</td><td class="status-new">nuevo</td><td class="desc">Progreso, parseo y clamping de duración</td></tr>
+          <tr><td class="path">test_host/ (11 archivos)</td><td class="status-new">nuevo</td><td class="desc">CMake + 7 suites de test + fake driver</td></tr>
+          <tr><td class="path">.ci/croniot-iot-ref.txt</td><td class="status-new">nuevo</td><td class="desc">SHA pineado del SDK</td></tr>
+          <tr><td class="path">.github/workflows/build.yml</td><td class="status-new">nuevo</td><td class="desc">CI: host-tests, compile-esp32c6, cppcheck</td></tr>
+          <tr><td class="path">Sensors/Battery/SensorBattery.{h,cpp}</td><td class="status-mod">modificado</td><td class="desc">Usa SensorBatteryLogic</td></tr>
+          <tr><td class="path">Sensors/SensorSolarPanel.cpp</td><td class="status-mod">modificado</td><td class="desc">Usa SensorSolarPanelLogic</td></tr>
+          <tr><td class="path">Sensors/SensorWiFiInfo.cpp</td><td class="status-mod">modificado</td><td class="desc">Usa SensorWiFiInfoLogic</td></tr>
+          <tr><td class="path">Sensors/SensorCurrentTime.cpp</td><td class="status-mod">modificado</td><td class="desc">Usa SensorCurrentTimeLogic</td></tr>
+          <tr><td class="path">Tasks/TaskWaterPlants.{h,cpp}</td><td class="status-mod">modificado</td><td class="desc">Usa el driver inyectado + Logic</td></tr>
+          <tr><td class="path">Tasks/TaskWaterPumpSwitch.{h,cpp}</td><td class="status-mod">modificado</td><td class="desc">Comparte el mismo seam de driver</td></tr>
+          <tr><td class="path">main/CMakeLists.txt</td><td class="status-mod">modificado</td><td class="desc">Registra los nuevos .cpp</td></tr>
+          <tr><td class="path">.gitignore</td><td class="status-mod">modificado</td><td class="desc">Ignora test_host/build y build/</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details class="repo-files">
+      <summary>croniot-iot — 8 nuevos · 5 modificados</summary>
+      <div class="file-scroll">
+        <table class="files">
+          <tr><th>Archivo</th><th>Estado</th><th>Qué es</th></tr>
+          <tr><td class="path">src/comm/BleChannelLogic.{h,cpp}</td><td class="status-new">nuevo</td><td class="desc">Passkey y hash, sin NimBLE</td></tr>
+          <tr><td class="path">test_host/ (6 archivos)</td><td class="status-new">nuevo</td><td class="desc">CMake, stubs de FreeRTOS, FakeCommChannel, 2 suites</td></tr>
+          <tr><td class="path">.github/workflows/test.yml</td><td class="status-new">nuevo</td><td class="desc">CI: host-tests, cppcheck</td></tr>
+          <tr><td class="path">src/comm/BleChannel.{h,cpp}</td><td class="status-mod">modificado</td><td class="desc">Delega en BleChannelLogic, métodos públicos</td></tr>
+          <tr><td class="path">src/comm/MessageBus.h</td><td class="status-mod">modificado</td><td class="desc">+ resetForTesting() (solo para tests)</td></tr>
+          <tr><td class="path">CMakeLists.txt</td><td class="status-mod">modificado</td><td class="desc">Registra BleChannelLogic.cpp</td></tr>
+          <tr><td class="path">.gitignore</td><td class="status-mod">modificado</td><td class="desc">Ignora test_host/build</td></tr>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <div class="closing">
+    <p><b>Nada de esto está commiteado todavía</b> — queda en el working tree de ambos repos para revisión. Pendiente de este plan: Fase 3 (capa Unity/ESP-IDF <code>linux</code> target, checklist manual de BLE) y Fase 4 (cppcheck bloqueante, spike de QEMU esp32-c6).</p>
+  </div>
+
+</main>
+
+<script>
+  document.querySelectorAll('[data-copy]').forEach(function (block) {
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = 'Copiar';
+    btn.addEventListener('click', function () {
+      var text = block.textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function () {});
+      }
+      btn.textContent = 'Copiado';
+      setTimeout(function () { btn.textContent = 'Copiar'; }, 1400);
+    });
+    block.appendChild(btn);
+  });
+</script>
+</body>
+</html>

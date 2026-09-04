@@ -34,8 +34,6 @@ private:
 
     volatile bool continueTask = true;
 
-    static float voltsToPercentage(float voltage);
-
     float getBatteryCurrent();
     float getBatteryVoltage();
 };

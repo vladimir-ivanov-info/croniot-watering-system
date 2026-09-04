@@ -1,8 +1,7 @@
 #include "Sensors/Battery/SensorBattery.h"
+#include "Sensors/Battery/SensorBatteryLogic.h"
 #include "esp_log.h"
 #include <cmath>
-#include <iomanip>
-#include <sstream>
 #include <string>
 
 static const char* TAG = "SensorBattery";
@@ -12,17 +11,6 @@ static constexpr float MV_TO_V = 0.001f;
 static constexpr float ACS712_ZERO_CURRENT_VOLTAGE = 2.516f;
 // Cambia según modelo: 0.185 (5A), 0.100 (20A), 0.066 (30A)
 static constexpr float ACS712_SENSITIVITY_V_PER_A = 0.100f;
-
-static std::string formatMax2Decimals(double value) {
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(2) << value;
-    std::string s = oss.str();
-    s.erase(s.find_last_not_of('0') + 1, std::string::npos);
-    if (!s.empty() && s.back() == '.') {
-        s.pop_back();
-    }
-    return s;
-}
 
 void SensorBattery::run() {
     xTaskCreatePinnedToCore(
@@ -47,14 +35,14 @@ void SensorBattery::taskBattery(void* pvParameters) {
         float batteryCurrent = self->getBatteryCurrent();
         float batteryVoltage = self->getBatteryVoltage();
 
-        float voltageBatteryPercentage = voltsToPercentage(batteryVoltage);
-        voltageBatteryPercentage = std::min(100.0f, std::max(0.0f, voltageBatteryPercentage));
+        float voltageBatteryPercentage = SensorBatteryLogic::voltsToPercentage(batteryVoltage);
+        voltageBatteryPercentage = SensorBatteryLogic::clampPercentage(voltageBatteryPercentage);
 
         const float batteryCurrentAbs = std::fabs(batteryCurrent);
         double batteryPower = batteryVoltage * batteryCurrentAbs;
-        const std::string batteryPercentageStr = formatMax2Decimals(voltageBatteryPercentage);
-        const std::string batteryPowerStr = formatMax2Decimals(batteryPower);
-        const std::string batteryVoltageStr = formatMax2Decimals(batteryVoltage);
+        const std::string batteryPercentageStr = SensorBatteryLogic::formatMax2Decimals(voltageBatteryPercentage);
+        const std::string batteryPowerStr = SensorBatteryLogic::formatMax2Decimals(batteryPower);
+        const std::string batteryVoltageStr = SensorBatteryLogic::formatMax2Decimals(batteryVoltage);
 
         self->sendSensorData(SENSOR_BATTERY_PERCENTAGE, batteryPercentageStr);
         self->sendSensorData(SENSOR_BATTERY_POWER_CONSUMPTION, batteryPowerStr);
@@ -108,12 +96,4 @@ float SensorBattery::getBatteryVoltage() {
     const float scaledVoltage = (measuredVoltage / 5.0f) * 25.0f; // divisor 5:1
 
     return scaledVoltage;
-}
-
-float SensorBattery::voltsToPercentage(float voltage) {
-    const float maxVoltage = 13.2f;
-    const float minVoltage = 10.0f;
-
-    const float slope = 100.0f / (maxVoltage - minVoltage);
-    return slope * (voltage - minVoltage);
 }
