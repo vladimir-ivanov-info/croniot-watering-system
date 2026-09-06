@@ -34,7 +34,7 @@ jobs:
   compile-esp32c6:
     runs-on: ubuntu-latest
     container:
-      image: espressif/idf:v5.4.1
+      image: espressif/idf:v5.5.3
     steps:
       - name: Checkout croniot-watering-system
         uses: actions/checkout@v4
