@@ -57,6 +57,15 @@ jobs:
           # croniot-iot vendors components/espp as a git submodule.
           submodules: true
 
+      - name: Generate secrets.h from the mock template
+        # secrets.h is gitignored (real WiFi/account credentials) and never
+        # checked out in CI. secrets_mock.h documents the exact rename this
+        # step automates: SECRETS_MOCK_H -> SECRETS_H, SecretsMock -> Secrets.
+        run: |
+          sed -e 's/SECRETS_MOCK_H/SECRETS_H/g' -e 's/SecretsMock/Secrets/g' \
+            nested/croniot-watering-system/secrets_mock.h \
+            > nested/croniot-watering-system/secrets.h
+
       - name: idf.py build
         shell: bash
         working-directory: nested/croniot-watering-system
