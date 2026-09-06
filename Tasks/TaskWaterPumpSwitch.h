@@ -12,6 +12,7 @@
 #include "Tasks/SimpleTaskData.h"
 #include "Tasks/TaskProgressUpdate.h"
 #include "Tasks/TaskController.h"
+#include "Tasks/Esp32WaterGpioDriver.h"
 
 #include "Sensors/SensorDefs.h"
 #include "secrets.h"
@@ -29,6 +30,11 @@ public:
 
 private:
     std::map<int, std::string> parametersValues;
+
+    // Same pump GPIO (and same IWaterGpioDriver seam) as TaskWaterPlants -
+    // both tasks can drive the pump independently, with no valve
+    // coordination between them. See test_host tests for the documented hazard.
+    Esp32WaterGpioDriver gpioDriver_;
 
     struct TaskParams {
         TaskWaterPumpSwitch* obj;

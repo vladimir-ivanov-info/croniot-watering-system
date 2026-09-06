@@ -1,4 +1,6 @@
 #include "SensorWiFiInfo.h"
+#include "Sensors/SensorWiFiInfoLogic.h"
+#include <vector>
 
 static const char* TAG = "SensorWiFi";
 
@@ -15,33 +17,30 @@ void SensorWiFiStrength::task(void* pvParameters) {
     while (self->continueTask) {
         wifi_ap_record_t ap_info;
 
-        int rssi_sum = 0;
         int measurements = 10;
-        int valid_samples = 0;
-        int failed_samples = 0;
+        int wifiApiFailures = 0;
+        std::vector<int> rssiSamples;
+        rssiSamples.reserve(measurements);
 
         for (int i = 0; i < measurements; ++i) {
             if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK) {
-                // Expected RSSI range in dBm for Wi-Fi.
-                if (ap_info.rssi <= -20 && ap_info.rssi >= -127) {
-                    rssi_sum += ap_info.rssi;
-                    valid_samples++;
-                } else {
-                    failed_samples++;
-                }
+                rssiSamples.push_back(ap_info.rssi);
             } else {
-                failed_samples++;
+                wifiApiFailures++;
             }
             vTaskDelay(pdMS_TO_TICKS(50));
         }
 
-        if (valid_samples == 0) {
-            ESP_LOGW(TAG, "No valid RSSI samples (failed=%d)", failed_samples);
+        SensorWiFiInfoLogic::RssiAverageResult avgResult = SensorWiFiInfoLogic::averageRssi(rssiSamples);
+        int failed_samples = wifiApiFailures + avgResult.failedCount;
+
+        if (avgResult.validCount == 0) {
+          //TODO  ESP_LOGW(TAG, "No valid RSSI samples (failed=%d)", failed_samples);
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }
 
-        int average_rssi = rssi_sum / valid_samples;
+        int average_rssi = avgResult.average;
         std::string rssi_str = std::to_string(average_rssi);
         reportCounter++;
 
@@ -51,7 +50,7 @@ void SensorWiFiStrength::task(void* pvParameters) {
                 TAG,
                 "RSSI avg=%d dBm (valid=%d, failed=%d) ap_rssi=%d channel=%u bssid=%02x:%02x:%02x:%02x:%02x:%02x",
                 average_rssi,
-                valid_samples,
+                avgResult.validCount,
                 failed_samples,
                 ap_info.rssi,
                 ap_info.primary,

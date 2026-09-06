@@ -1,4 +1,5 @@
 #include "SensorSolarPanel.h"
+#include "Sensors/SensorSolarPanelLogic.h"
 
 static const char* TAG = "SensorSolarPanel";
 
@@ -19,7 +20,7 @@ void SensorSolarPanel::taskSolar(void* pvParameters) {
             float solarPower = solarVoltage * solarCurrent;
             std::string solarPowerStr = "0";
 
-            if (solarVoltage > 14.0f || solarCurrent >= 0.7f) {
+            if (SensorSolarPanelLogic::shouldReportPower(solarVoltage, solarCurrent)) {
                 solarPowerStr = std::to_string(solarPower);
             }
 
@@ -35,9 +36,6 @@ void SensorSolarPanel::taskSolar(void* pvParameters) {
 }
 
 float SensorSolarPanel::getSolarCurrent() {
-    constexpr float zeroCurrentVoltage = 2.5f;
-    constexpr float sensitivity = 0.1f;
-
     int adValue = 0;
     int sampleCount = 0;
 
@@ -53,8 +51,7 @@ float SensorSolarPanel::getSolarCurrent() {
     if (sampleCount == 0) return 0.0f;
 
     float averageAdc = static_cast<float>(adValue) / sampleCount;
-    float voltage = averageAdc * 0.0001875f;
-    return (voltage - zeroCurrentVoltage) / sensitivity;
+    return SensorSolarPanelLogic::adcToCurrent(averageAdc);
 }
 
 float SensorSolarPanel::getSolarVoltage() {
@@ -73,6 +70,5 @@ float SensorSolarPanel::getSolarVoltage() {
     if (sampleCount == 0) return 0.0f;
 
     float averageAdc = static_cast<float>(adValue) / sampleCount;
-    double measuredVoltage = averageAdc * 0.0001875;
-    return (measuredVoltage / 5.0) * 25.0;
+    return SensorSolarPanelLogic::adcToVoltage(averageAdc);
 }

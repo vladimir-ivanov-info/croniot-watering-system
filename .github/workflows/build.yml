@@ -1,0 +1,89 @@
+name: Build & Test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  # Fast gate: host-native pure-logic unit tests. Zero ESP-IDF toolchain -
+  # runs on a plain ubuntu-latest runner in seconds.
+  host-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S test_host -B test_host/build
+
+      - name: Build
+        run: cmake --build test_host/build -j "$(nproc)"
+
+      - name: Run tests
+        run: ctest --test-dir test_host/build --output-on-failure
+
+  # Compile gate: builds the real firmware for the esp32c6 target. Needs
+  # croniot-iot checked out as a sibling directory two levels above this
+  # repo's root, matching the relative EXTRA_COMPONENT_DIRS path in
+  # CMakeLists.txt (../../croniot-iot/components/croniot). The pinned ref
+  # in .ci/croniot-iot-ref.txt is bumped manually (a one-line PR) whenever
+  # this repo intentionally adopts a new croniot-iot version - this keeps
+  # CI reproducible instead of silently breaking on unrelated croniot-iot
+  # changes. See the testing plan doc for the alternative (always latest
+  # main) if you'd rather trade reproducibility for less friction.
+  compile-esp32c6:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:v5.5.3
+    steps:
+      - name: Checkout croniot-watering-system
+        uses: actions/checkout@v4
+        with:
+          # Nested one extra level so that, from this checkout, "../.."
+          # lands at $GITHUB_WORKSPACE - where croniot-iot is checked out
+          # below - exactly mirroring the local dev layout.
+          path: nested/croniot-watering-system
+
+      - name: Read pinned croniot-iot ref
+        id: pinned_ref
+        run: echo "ref=$(cat nested/croniot-watering-system/.ci/croniot-iot-ref.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout croniot-iot (pinned sibling dependency)
+        uses: actions/checkout@v4
+        with:
+          repository: vladimir-ivanov-info/croniot-iot
+          ref: ${{ steps.pinned_ref.outputs.ref }}
+          path: croniot-iot
+          # croniot-iot vendors components/espp as a git submodule.
+          submodules: true
+
+      - name: Generate secrets.h from the mock template
+        # secrets.h is gitignored (real WiFi/account credentials) and never
+        # checked out in CI. secrets_mock.h documents the exact rename this
+        # step automates: SECRETS_MOCK_H -> SECRETS_H, SecretsMock -> Secrets.
+        run: |
+          sed -e 's/SECRETS_MOCK_H/SECRETS_H/g' -e 's/SecretsMock/Secrets/g' \
+            nested/croniot-watering-system/secrets_mock.h \
+            > nested/croniot-watering-system/secrets.h
+
+      - name: idf.py build
+        shell: bash
+        working-directory: nested/croniot-watering-system
+        run: |
+          . "$IDF_PATH/export.sh"
+          idf.py build
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cppcheck
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
+      - name: Run cppcheck
+        # Non-blocking for now: expect noise against the untouched legacy
+        # tree on the first few runs. Add --error-exitcode=1 once
+        # suppressions are tuned and you want this to gate merges.
+        run: |
+          cppcheck --enable=warning,performance,portability --inline-suppr \
+            -I . -I Sensors -I Tasks \
+            Sensors Tasks main 2>&1 | tee cppcheck-report.txt
