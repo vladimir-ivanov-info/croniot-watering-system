@@ -1,6 +1,7 @@
 #include "../secrets.h"
 #include "CommonSetup.h"
 #include "CroniotConfig.h"
+#include "Log.h"
 
 #include "CommonConstants.h"
 #include "TasksInitializer.h"
@@ -31,6 +32,16 @@ void setServer();
 void SetupTask(void*);
 
 extern "C" void app_main(void) {
+    // First line, on purpose: CommonSetup::setup() only runs later, inside
+    // SetupTask (see SetupTask() below), so installing the hook here is
+    // what captures initSensors()/initTasks() and anything that fails
+    // before that point instead of missing it.
+    croniot::log::LogConfig logCfg;
+    logCfg.profile = croniot::log::Profile::RealTime;  // plugged in; croniot::log::Profile::Batched for a battery build
+    logCfg.capture = croniot::log::Level::Info;
+    logCfg.tags = {{"TaskWaterPlants", croniot::log::Level::Debug}};
+    croniot::log::init(logCfg);
+
     esp_log_level_set(TAG, ESP_LOG_INFO);
 
     ESP_LOGI(TAG, "Starting setup");
