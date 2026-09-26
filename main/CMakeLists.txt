@@ -30,14 +30,16 @@ idf_component_register(
         "../Sensors"
         "../Sensors/Battery"
         "../Tasks"
-    REQUIRES 
+    REQUIRES
         croniot  # Tu componente croniot
         driver
         esp_adc
         i2c ads1x15
         #Sensors No pongas REQUIRES Sensors dentro de main, eso es redundante. Si Sensors es un componente, ESP-IDF lo resuelve automáticamente si usas su encabezado.
 
-
+    PRIV_REQUIRES
+        nvs_flash
+        esp_app_format
 )
 
 # Incluye los headers del framework si no están bien detectados
