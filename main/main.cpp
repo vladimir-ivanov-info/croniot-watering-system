@@ -1,7 +1,7 @@
 #include "../secrets.h"
 #include "CommonSetup.h"
 #include "CroniotConfig.h"
-#include "Log.h"
+#include "log/Log.h"
 
 #include "CommonConstants.h"
 #include "TasksInitializer.h"
