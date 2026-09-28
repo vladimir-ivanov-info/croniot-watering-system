@@ -1,6 +1,8 @@
 #include "TaskWaterPlants.h"
 #include "Tasks/TaskWaterPlantsLogic.h"
+#include "log/Log.h"
 #include <memory>
+#include <string>
 
 static const char* TAG = "TaskWaterPlants";
 
@@ -42,6 +44,14 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData) {
     auto it = taskData.parametersValues.find(parameterDuration);
     if (it == taskData.parametersValues.end()) {
         ESP_LOGE(TAG, "Key not found: %d", parameterDuration);
+        // Template for other projects: a structured event alongside the
+        // plain log line, for the cases worth finding without grepping
+        // through free-text messages. Doesn't fix the bug this reveals
+        // (no FAILED progress update follows - see the plan's PR8 notes);
+        // that's a separate, deliberate fix left for its own change.
+        croniot::log::event("task_param_missing", croniot::log::Level::Error,
+                            {{"taskUid", std::to_string(taskData.taskUid)},
+                             {"param", std::to_string(parameterDuration)}});
         return;
     }
 
