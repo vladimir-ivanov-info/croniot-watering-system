@@ -73,6 +73,13 @@ jobs:
           . "$IDF_PATH/export.sh"
           idf.py build
 
+      - name: Upload ELF (for backtrace/coredump symbolication)
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-elf
+          path: nested/croniot-watering-system/build/*.elf
+          retention-days: 90
+
   static-analysis:
     runs-on: ubuntu-latest
     steps:
@@ -87,3 +94,14 @@ jobs:
           cppcheck --enable=warning,performance,portability --inline-suppr \
             -I . -I Sensors -I Tasks \
             Sensors Tasks main 2>&1 | tee cppcheck-report.txt
+
+      - name: Lint for leaked secrets in logs
+        # Fails the job on any ESP_LOG* call that prints a password/token/
+        # passkey/secret value directly instead of through croniot::redact().
+        run: |
+          if grep -rnE 'ESP_LOG[A-Z]*\([^)]*(password|token|passkey|secret)' \
+              --include='*.cpp' --include='*.h' Sensors Tasks main \
+              | grep -v 'redact(' ; then
+            echo "::error::Found a log line that may leak a secret. Wrap the value in croniot::redact() or remove it."
+            exit 1
+          fi

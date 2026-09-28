@@ -1,0 +1,7 @@
+# Observability PR4: flash size bump (8MB -> 16MB, matches new 16MB partition
+# table), coredump written to flash in ELF format, and log ceiling raised to
+# DEBUG so DEBUG-level instrumentation added in later PRs is compiled in.
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH=y
+CONFIG_ESP_COREDUMP_DATA_FORMAT_ELF=y
+CONFIG_LOG_MAXIMUM_LEVEL_DEBUG=y
