@@ -40,11 +40,10 @@ void SensorBattery::taskBattery(void* pvParameters) {
 
         const float batteryCurrentAbs = std::fabs(batteryCurrent);
         double batteryPower = batteryVoltage * batteryCurrentAbs;
-        const std::string batteryPercentageStr = SensorBatteryLogic::formatMax2Decimals(voltageBatteryPercentage);
         const std::string batteryPowerStr = SensorBatteryLogic::formatMax2Decimals(batteryPower);
         const std::string batteryVoltageStr = SensorBatteryLogic::formatMax2Decimals(batteryVoltage);
 
-        self->sendSensorData(SENSOR_BATTERY_PERCENTAGE, batteryPercentageStr);
+        self->reportSample(SENSOR_BATTERY_PERCENTAGE, voltageBatteryPercentage);
         self->sendSensorData(SENSOR_BATTERY_POWER_CONSUMPTION, batteryPowerStr);
 
         vTaskDelay(pdMS_TO_TICKS(3000));

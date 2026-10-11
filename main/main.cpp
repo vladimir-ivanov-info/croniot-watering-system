@@ -164,8 +164,8 @@ void SetupTask(void* pvParameters) {
     config.accountUuid       = ACCOUNT_UUID;
     config.accountPassword   = ACCOUNT_PASSWORD;
 
-    //config.channels = { croniot::ChannelType::Remote/*, croniot::ChannelType::Ble */};
-    config.channels = { croniot::ChannelType::Ble };
+    config.channels = { croniot::ChannelType::Remote/*, croniot::ChannelType::Ble */};
+    //config.channels = { croniot::ChannelType::Ble };
     
     config.remote.transport       = croniot::RemoteTransport::Wifi;
     config.remote.serverAddress   = Secrets::SERVER_ADDRESS;

@@ -1,5 +1,6 @@
 #include "TaskWaterPlants.h"
 #include "Tasks/TaskWaterPlantsLogic.h"
+#include "Tasks/TaskStep.h"
 #include "log/Log.h"
 #include <memory>
 #include <string>
@@ -72,7 +73,14 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData) {
         TaskController::instance().enqueueTaskProgressUpdate(prog);
     };
 
+    // Plan §7.6: an auditable record of each step - "¿se cerró la
+    // válvula?" - independent of the progress-percentage updates above,
+    // which report *how far along* the task is, not whether each
+    // physical action actually happened. `ok=true` here reflects that
+    // the call was made, not a sensor confirmation the valve actually
+    // moved - this hardware has no position feedback to check against.
     sequence_.openWaterValve();
+    croniot::task::step(taskData.taskUid, "valve_open", true);
     for (int i = 0; i < TaskWaterPlantsLogic::kOpenTimeMillis; i += 1000) {
         vTaskDelay(pdMS_TO_TICKS(1000));
         elapsed += 1000;
@@ -80,6 +88,7 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData) {
     }
 
     sequence_.startWatering();
+    croniot::task::step(taskData.taskUid, "watering_start", true);
     for (int i = 0; i < wateringDurationMillis; i += 1000) {
         vTaskDelay(pdMS_TO_TICKS(1000));
         elapsed += 1000;
@@ -87,6 +96,7 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData) {
     }
 
     sequence_.stopWatering();
+    croniot::task::step(taskData.taskUid, "watering_stop", true);
     for (int i = 0; i < TaskWaterPlantsLogic::kCloseDelayMillis; i += 1000) {
         vTaskDelay(pdMS_TO_TICKS(1000));
         elapsed += 1000;
@@ -94,6 +104,7 @@ void TaskWaterPlants::executeTask(SimpleTaskData& taskData) {
     }
 
     sequence_.closeWaterValve();
+    croniot::task::step(taskData.taskUid, "valve_close", true);
     for (int i = 0; i < TaskWaterPlantsLogic::kCloseTimeMillis; i += 1000) {
         vTaskDelay(pdMS_TO_TICKS(1000));
         elapsed += 1000;
