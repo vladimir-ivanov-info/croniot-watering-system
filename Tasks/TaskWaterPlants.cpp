@@ -13,7 +13,9 @@ TaskWaterPlants::TaskWaterPlants()
       sequence_(gpioDriver_) {
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.mode = GPIO_MODE_OUTPUT;
+    // INPUT_OUTPUT, not OUTPUT: lets main.cpp's OTA gate read back whether
+    // a relay is on (an output-only pin always reads 0).
+    io_conf.mode = GPIO_MODE_INPUT_OUTPUT;
     io_conf.pin_bit_mask = (1ULL << pinWaterPump) | (1ULL << pinElectricValve1) | (1ULL << pinElectricValve2);
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;

@@ -6,6 +6,8 @@
 #include "CommonConstants.h"
 #include "TasksInitializer.h"
 #include "SensorsInitializer.h"
+#include "TaskWaterPlants.h"
+#include "ota/Ota.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -70,6 +72,32 @@ static void cpuIdleTask(void*) {
 
 void setServer();
 void SetupTask(void*);
+
+// Firmware updates (croniot-iot ota/Ota.h). Both pump-driving tasks set
+// the pins up as INPUT_OUTPUT, so the levels can be read back here.
+// At rest the pump relay (active-low) is high and both valve lines are low:
+// the motorized valve is only driven, one line high, while it opens or
+// closes (see Tasks/WaterSequenceController.h).
+static constexpr int kPumpOff = 1;
+static constexpr int kValveLineIdle = 0;
+
+static bool wateringIdle() {
+    return gpio_get_level(TaskWaterPlants::pinWaterPump) == kPumpOff &&
+           gpio_get_level(TaskWaterPlants::pinElectricValve1) == kValveLineIdle &&
+           gpio_get_level(TaskWaterPlants::pinElectricValve2) == kValveLineIdle;
+}
+
+static void configureOta() {
+    // Never start an update, or restart into one, in the middle of watering.
+    croniot::ota::setUpdateGate(wateringIdle);
+    // Pump off and the valve motor not driven, rather than whatever the pins
+    // float to while the chip resets.
+    croniot::ota::setBeforeRestart([] {
+        gpio_set_level(TaskWaterPlants::pinWaterPump, kPumpOff);
+        gpio_set_level(TaskWaterPlants::pinElectricValve1, kValveLineIdle);
+        gpio_set_level(TaskWaterPlants::pinElectricValve2, kValveLineIdle);
+    });
+}
 
 extern "C" void app_main(void) {
     // First line, on purpose: CommonSetup::setup() only runs later, inside
@@ -145,6 +173,7 @@ extern "C" void app_main(void) {
 
     SensorsInitializer::initSensors();
     TasksInitializer::initTasks();
+    configureOta();
 
     xTaskCreatePinnedToCore(SetupTask, "SetupTask", 20480, NULL, 5, NULL, tskNO_AFFINITY);
 
