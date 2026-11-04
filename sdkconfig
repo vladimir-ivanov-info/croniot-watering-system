@@ -2662,6 +2662,14 @@ CONFIG_CRONIOT_OTA_TASK_PRIORITY=1
 # end of Croniot firmware updates (croniot::ota)
 
 #
+# Croniot WiFi setup (croniot::provision)
+#
+CONFIG_CRONIOT_WIFI_CONSOLE=y
+CONFIG_CRONIOT_WIFI_CONNECT_TIMEOUT_S=30
+CONFIG_CRONIOT_WIFI_CONSOLE_TASK_STACK_SIZE=4096
+# end of Croniot WiFi setup (croniot::provision)
+
+#
 # ESPP Logger
 #
 CONFIG_ESPP_LOGGER_LOG_LEVEL=4

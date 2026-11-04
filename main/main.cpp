@@ -200,6 +200,9 @@ void SetupTask(void* pvParameters) {
     config.remote.serverAddress   = Secrets::SERVER_ADDRESS;
     config.remote.serverHttpPort  = Secrets::SERVER_PORT;
     config.remote.serverMqttPort  = Secrets::SERVER_PORT_MQTT;
+    // Only a fallback for boards without a network stored on them (typed
+    // with `wifi` on the serial console, kept in /littlefs/wifi.json).
+    // Empty in secrets_mock.h, so CI-built firmware carries no password.
     config.remote.wifiSsid        = Secrets::WIFI_SSID;
     config.remote.wifiPassword    = Secrets::WIFI_PASSWORD;
 

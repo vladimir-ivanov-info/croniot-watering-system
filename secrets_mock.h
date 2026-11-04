@@ -19,8 +19,13 @@
 class SecretsMock {
 
     public:
-        inline static std::string WIFI_SSID = "WIFI_SSID";
-        inline static std::string WIFI_PASSWORD = "WIFI_PASSWORD";
+        // Leave both empty: the WiFi network is stored on each board, not
+        // in the firmware. Type `wifi` in the serial monitor to set it
+        // (documentation/iot.md, "Configurar el WiFi"). Filling them in
+        // only makes a board without a stored network fall back to this
+        // one, and puts the password inside the .bin.
+        inline static std::string WIFI_SSID = "";
+        inline static std::string WIFI_PASSWORD = "";
 
         inline static std::string SERVER_ADDRESS = "";
         inline static const std::string SERVER_ADDRESS_LOCAL = "192.168.x.x";
